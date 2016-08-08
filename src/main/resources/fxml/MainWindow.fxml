@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.*?>
+
+<AnchorPane id="AnchorPane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="504.0" prefWidth="749.0" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/2.2" fx:controller="com.Igor.SearchIp.Controller">
+  <children>
+    <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="1.0" AnchorPane.rightAnchor="-1.0" AnchorPane.topAnchor="0.0">
+      <children>
+        <MenuBar>
+          <menus>
+            <Menu mnemonicParsing="false" text="File">
+              <items>
+                <MenuItem mnemonicParsing="false" onAction="#openFile" text="Open" fx:id="openMenuButton2" />
+                <MenuItem mnemonicParsing="false" onAction="#clickSave" text="Save" fx:id="saveItem" />
+                <MenuItem mnemonicParsing="false" onAction="#clieckExit" text="Exit" fx:id="exitButtonMenu" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Edit">
+              <items>
+                <MenuItem mnemonicParsing="false" text="Delete" />
+              </items>
+            </Menu>
+            <Menu mnemonicParsing="false" text="Help">
+              <items>
+                <MenuItem mnemonicParsing="false" text="About" />
+              </items>
+            </Menu>
+          </menus>
+        </MenuBar>
+        <SplitPane dividerPositions="0.3868808567603748" focusTraversable="true" prefHeight="160.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+          <items>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+              <children>
+                <VBox prefHeight="478.0" prefWidth="330.0" AnchorPane.bottomAnchor="5.0" AnchorPane.leftAnchor="5.0" AnchorPane.rightAnchor="5.0" AnchorPane.topAnchor="5.0">
+                  <children>
+                    <HBox fx:id="HBoxFind" VBox.margin="$x2" VBox.vgrow="NEVER">
+                      <children>
+                        <Label id="awdawd" minWidth="32.0" prefHeight="24.0" prefWidth="32.0" text="Find:" HBox.hgrow="NEVER">
+                          <HBox.margin>
+                            <Insets top="5.0" />
+                          </HBox.margin>
+                        </Label>
+                        <ChoiceBox fx:id="choiceBox" blendMode="SRC_OVER" cache="true" cacheHint="DEFAULT" depthTest="INHERIT" minWidth="80.0" HBox.hgrow="ALWAYS">
+                          <items>
+                            <FXCollections fx:factory="observableArrayList">
+                              <String fx:value="Item 1" />
+                              <String fx:value="Item 2" />
+                              <String fx:value="Item 3" />
+                            </FXCollections>
+                          </items>
+                          <HBox.margin>
+                            <Insets left="5.0" top="5.0" />
+                          </HBox.margin>
+                        </ChoiceBox>
+                        <TextField fx:id="textField_Find" prefWidth="166.0" HBox.hgrow="ALWAYS">
+                          <HBox.margin>
+                            <Insets left="10.0" top="5.0" />
+                          </HBox.margin>
+                        </TextField>
+                        <CheckBox fx:id="CHSetSelect" minWidth="30.0" mnemonicParsing="false" onAction="#clickCHSetSelect" selected="true" text="SR" HBox.hgrow="NEVER">
+                          <HBox.margin>
+                            <Insets left="10.0" top="7.0" />
+                          </HBox.margin>
+                        </CheckBox>
+                      </children>
+                      <padding>
+                        <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x2" />
+                      </padding>
+                    </HBox>
+                    <TableView fx:id="table" blendMode="DARKEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-1.0" minWidth="200.0" mouseTransparent="false" prefHeight="478.0" prefWidth="330.0" VBox.vgrow="ALWAYS" />
+                  </children>
+                </VBox>
+              </children>
+            </AnchorPane>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+              <children>
+                <TabPane prefHeight="478.0" prefWidth="411.0" tabClosingPolicy="UNAVAILABLE" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                  <tabs>
+                    <Tab text="Diagrams">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                          <children>
+                            <VBox fx:id="VBoxMain" prefHeight="442.0" prefWidth="411.0" spacing="0.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <children>
+                                <HBox maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="100.0" prefWidth="200.0" VBox.vgrow="ALWAYS">
+                                  <children>
+                                    <PieChart id="PieChart" fx:id="pieChartCountIp" maxWidth="1.7976931348623157E308" minHeight="-1.0" minWidth="-1.0" prefHeight="-1.0" prefWidth="-1.0" titleSide="TOP" HBox.hgrow="ALWAYS">
+                                      <HBox.margin>
+                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" fx:id="x1" />
+                                      </HBox.margin>
+                                    </PieChart>
+                                  </children>
+                                </HBox>
+                              </children>
+                            </VBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </Tab>
+                    <Tab text="Create a new network">
+                      <content>
+                        <AnchorPane id="Content" minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0" style="">
+                          <children>
+                            <VBox prefHeight="442.0" prefWidth="455.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                              <children>
+                                <SplitPane dividerPositions="0.38287153652392947" focusTraversable="true" orientation="VERTICAL" prefHeight="442.0" prefWidth="455.0" VBox.vgrow="ALWAYS">
+                                  <items>
+                                    <AnchorPane maxHeight="1.7976931348623157E308" minHeight="-1.0" prefHeight="149.0" prefWidth="453.0">
+                                      <children>
+                                        <HBox alignment="BOTTOM_RIGHT" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" prefHeight="165.0" prefWidth="350.0" style="-fx-border-color: gray;" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                          <children>
+                                            <VBox prefHeight="200.0" prefWidth="100.0" HBox.hgrow="ALWAYS">
+                                              <children>
+                                                <Label labelFor="$VBoxMain" text="Choose network to divide:" textAlignment="CENTER" underline="true" VBox.vgrow="ALWAYS">
+                                                  <font>
+                                                    <Font size="13.0" />
+                                                  </font>
+                                                  <VBox.margin>
+                                                    <Insets left="5.0" right="5.0" top="5.0" />
+                                                  </VBox.margin>
+                                                </Label>
+                                                <ListView fx:id="ListSiecToDivide" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefHeight="130.0" prefWidth="347.0" VBox.vgrow="ALWAYS">
+                                                  <VBox.margin>
+                                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" fx:id="x1" />
+                                                  </VBox.margin>
+                                                </ListView>
+                                              </children>
+                                            </VBox>
+                                            <Button id="clickButton" fx:id="okButton" alignment="CENTER" blendMode="SRC_OVER" contentDisplay="LEFT" disable="false" focusTraversable="false" maxHeight="48.0" maxWidth="48.0" minHeight="48.0" minWidth="48.0" mnemonicParsing="false" mouseTransparent="false" onAction="#clickButton" opacity="1.0" prefHeight="48.0" prefWidth="48.0" text="" textOverrun="ELLIPSIS" visible="true" HBox.hgrow="NEVER">
+                                              <HBox.margin>
+                                                <Insets bottom="10.0" left="5.0" right="10.0" top="10.0" />
+                                              </HBox.margin>
+                                            </Button>
+                                          </children>
+                                        </HBox>
+                                      </children>
+                                    </AnchorPane>
+                                    <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="100.0" prefWidth="160.0">
+                                      <children>
+                                        <ScrollPane id="VBoxCreate" fitToHeight="false" fitToWidth="true" prefHeight="185.0" prefWidth="453.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                          <content>
+                                            <AnchorPane id="Content" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="-1.0" prefWidth="-1.0">
+                                              <children>
+                                                <VBox fx:id="MainBoxDivide" prefHeight="133.0" prefWidth="453.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                                              </children>
+                                              <padding>
+                                                <Insets />
+                                              </padding>
+                                            </AnchorPane>
+                                          </content>
+                                        </ScrollPane>
+                                      </children>
+                                    </AnchorPane>
+                                  </items>
+                                </SplitPane>
+                                <HBox alignment="BOTTOM_RIGHT" style="-fx-border-color: gray;" VBox.vgrow="NEVER">
+                                  <children>
+                                    <Button fx:id="ApplayButton" alignment="CENTER" contentDisplay="RIGHT" mnemonicParsing="false" onAction="#applyClick" prefHeight="23.9998779296875" text="Apply" textAlignment="LEFT" HBox.hgrow="NEVER" HBox.margin="$x1" />
+                                  </children>
+                                  <VBox.margin>
+                                    <Insets />
+                                  </VBox.margin>
+                                </HBox>
+                              </children>
+                            </VBox>
+                          </children>
+                        </AnchorPane>
+                      </content>
+                    </Tab>
+                  </tabs>
+                </TabPane>
+              </children>
+            </AnchorPane>
+          </items>
+        </SplitPane>
+      </children>
+    </VBox>
+  </children>
+</AnchorPane>
