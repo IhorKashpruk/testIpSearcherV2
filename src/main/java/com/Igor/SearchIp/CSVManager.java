@@ -39,7 +39,7 @@ public class CSVManager {
     }
 
     public<T extends SiecModel> void writeData(List<T> list, String pathToSave) throws IOException {
-        CSVWriter writer = new CSVWriter(new FileWriter(pathToSave),',', '\0');
+        CSVWriter writer = new CSVWriter(new FileWriter(pathToSave),delimiter, '\0');
 
         for(SiecModel sm : list) {
             writer.writeNext(sm.getColumnsValue());

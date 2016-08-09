@@ -48,7 +48,7 @@ public class SiecBox {
 
     private void initialize(){
 
-        mainBox.setStyle("-fx-border-style: solid; -fx-border-color: lime; -fx-border-width: 3px;");
+        mainBox.setStyle("-fx-border-style: dotted; -fx-border-color: lime; -fx-border-width: 3px;");
         mainBox.setPadding(new Insets(5,5,5,5));
         // First panel : 2 TextField - ip and count ip
         HBox ipAndCountIpBox = new HBox();

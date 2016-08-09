@@ -82,7 +82,7 @@ public class Controller {
         File selectedFile = fileChooser.showOpenDialog(null);
 
         if(selectedFile != null){
-            manager = new CSVManager(selectedFile.getPath(), ',');
+            manager = new CSVManager(selectedFile.getPath(), ';');
             List list = null;
             try {
                 list = manager.readData(Siec6.class);
