@@ -146,7 +146,7 @@ public class SiecBox {
                 return;
             }
             // Sorting numbers
-            Collections.sort(divideNumbers);
+            //Collections.sort(divideNumbers);
             leftBox.setDisable(true);
             divideSiecButton.setDisable(true);
 

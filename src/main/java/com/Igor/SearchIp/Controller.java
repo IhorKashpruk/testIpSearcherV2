@@ -68,9 +68,10 @@ public class Controller {
     @FXML
     public void openFile(ActionEvent actionEvent) {
 
+        choiceBox.getItems().clear();
         table.setEditable(true);
         table.getColumns().removeAll(table.getColumns());
-        tableManager.removeAllData();
+        tableManager.clearColumnsName();
 
         pieChartCountIp.dataProperty().get().removeAll(pieChartCountIp.dataProperty().get());
 
@@ -149,8 +150,8 @@ public class Controller {
 
             ObservableList<PieChart.Data> pieChartData =
                     FXCollections.observableArrayList(
-                            new PieChart.Data("Zajete Ip(" + (int)wolnych + ")", zajetev2),
-                            new PieChart.Data("Wolne Ip(" + (int)zajetych + ")", wolnev2));
+                            new PieChart.Data("Used ip addresses(" + (int)wolnych + ")", zajetev2),
+                            new PieChart.Data("Unused ip addresses(" + (int)zajetych + ")", wolnev2));
 
             diagram.setPieChartData(pieChartData);
             diagram.Drow();
@@ -210,6 +211,7 @@ public class Controller {
 
         okButton.setGraphic(new ImageView(new Image("Icons/scissors.png")));
         ListSiecToDivide.setItems(listToDivide);
+        textField_Find.setPromptText("Enter text...");
     }
 
     private void findIntoTable(){

@@ -36,6 +36,7 @@ public class TableManager<T extends SiecModel> {
     }
 
     public void setData(Collection<? extends T> collection){
+        data.clear();
         data.setAll(collection);
         table.setItems(data);
     }
@@ -79,4 +80,5 @@ public class TableManager<T extends SiecModel> {
     public void removeAllData(){
         data.removeAll(data);
     }
+    public void clearColumnsName(){ columnsName.clear();}
 }
