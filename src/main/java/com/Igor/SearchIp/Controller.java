@@ -290,6 +290,8 @@ public class Controller {
                 event.getTableView().getSelectionModel().select(event.getTablePosition().getRow());
                 return;
             }
+            event.getTableView().getItems().get(event.getTablePosition().getRow())
+                    .setValue(event.getTableColumn().getText(), newValue);
         });
 
         table.getTable().getColumns().get(4).setOnEditCommit(event -> {
