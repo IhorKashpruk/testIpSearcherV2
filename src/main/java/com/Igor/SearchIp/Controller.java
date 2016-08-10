@@ -3,32 +3,24 @@ package com.Igor.SearchIp;
 import com.Igor.SearchIp.Containers.*;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.collections.transformation.FilteredList;
-import javafx.concurrent.Task;
 import javafx.event.*;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import sun.tools.jar.*;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -262,7 +254,7 @@ public class Controller {
             return;
         }
         VBox.setVgrow(MainBoxDivide, Priority.ALWAYS);
-        siecBox = new SiecBox(siec);
+        siecBox = new SiecBox(siec, null);
         MainBoxDivide.getChildren().add(siecBox.getMainBox());
     }
 
@@ -277,8 +269,13 @@ public class Controller {
 
         List<Siec6> siec6List = new ArrayList<>();
 
-        MainBoxDivide.getChildren().clear();
+        //MainBoxDivide.getChildren().clear();
 
+        SiecBox.searchLastNodes(siecBox, siec6List);
+
+        for(Siec6 siec : siec6List) {
+            System.out.println(siec);
+        }
 
     }
 }

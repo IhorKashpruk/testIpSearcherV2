@@ -4,7 +4,6 @@ import com.Igor.SearchIp.Siec6;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
-import javafx.scene.chart.BubbleChart;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -14,8 +13,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Font;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -28,12 +25,14 @@ public class SiecBox {
     private HBox mainBox;
     private VBox superMainBox;
     private List<Integer> divideNumbers;
+    private SiecBox parrent;
 
     public VBox getMainBox() {
         return superMainBox;
     }
 
-    public SiecBox(Siec6 data) {
+    public SiecBox(Siec6 data, SiecBox parrent) {
+        this.parrent = parrent;
         this.data = data;
         listSiecBox = new ArrayList<>();
         residueSiecBox = null;
@@ -155,14 +154,14 @@ public class SiecBox {
 
             String ipSiec = data.getAddress();
             SiecBox siec = new SiecBox(new Siec6(ipSiec, String.valueOf(generatedMask(divideNumbers.get(0))), String.valueOf(divideNumbers.get(0)),
-                    "", "", "", ""));
+                    "", "", "", ""), this);
             siec.mainBox.setPadding(new Insets(5,5,5,mainBox.getPadding().getLeft()+20));
             listSiecBox.add(siec);
             superMainBox.getChildren().add(siec.getMainBox());
             for(int j = 1; j < divideNumbers.size(); j++){
                 ipSiec = generatedIpSiec(ipSiec, divideNumbers.get(j-1));
                 SiecBox siecBox = new SiecBox(new Siec6(ipSiec, String.valueOf(generatedMask(divideNumbers.get(j)))
-                        , String.valueOf(divideNumbers.get(j)), "", "", "", ""));
+                        , String.valueOf(divideNumbers.get(j)), "", "", "", ""), this);
                 siecBox.mainBox.setPadding(new Insets(5, 5, 5, mainBox.getPadding().getLeft()+20));
                 listSiecBox.add(siecBox);
                 superMainBox.getChildren().add(siecBox.getMainBox());
@@ -177,7 +176,7 @@ public class SiecBox {
             if(suma < Integer.parseInt(data.getCountIp())){
                 int nIp = Integer.parseInt(data.getCountIp()) - suma;
                 residueSiecBox = new SiecBox(new Siec6(ipSiec, String.valueOf(generatedMask(nIp))
-                        , String.valueOf(nIp), "", "", "", ""));
+                        , String.valueOf(nIp), "", "", "", ""), this);
                 residueSiecBox.mainBox.setStyle("-fx-border-color: gold; -fx-border-width: 3px;");
                 superMainBox.getChildren().add(residueSiecBox.getMainBox());
             }
@@ -187,9 +186,16 @@ public class SiecBox {
         // Button erase network
         eraseSiecButton.setOnAction(event -> {
             System.out.println("erase");
+            if(parrent != null){
             int index = superMainBox.getChildren().indexOf(mainBox);
             superMainBox.getChildren().remove(index, superMainBox.getChildren().size());
-            listSiecBox.remove(this);
+            removeSiecBox(this);
+                if(parrent.listSiecBox.size() == 0){
+                    parrent.mainBox.setStyle("-fx-border-style: dotted; -fx-border-color: lime; -fx-border-width: 3px;");
+                    parrent.mainBox.setDisable(false);
+                    parrent.mainBox.getChildren().get(0).setDisable(false);
+                }
+            }
         });
 
 
@@ -263,4 +269,27 @@ public class SiecBox {
         data = null;
     }
 
+    public static void searchLastNodes(SiecBox siecBox, List<Siec6> siec6List){
+        if(siecBox == null)
+            return;
+        if(siecBox.listSiecBox.size() == 0){
+            siec6List.add(siecBox.data);
+            return;
+        }else {
+            for(int i = 0; i < siecBox.listSiecBox.size(); i++){
+                searchLastNodes(siecBox.listSiecBox.get(i), siec6List);
+            }
+        }
+        if(siecBox.residueSiecBox != null)
+            searchLastNodes(siecBox.residueSiecBox, siec6List);
+    }
+
+    public void removeSiecBox(SiecBox siecBox){
+        listSiecBox.clear();
+        residueSiecBox = null;
+        if(parrent == null) return;
+        parrent.listSiecBox.remove(siecBox);
+        if(parrent.residueSiecBox == siecBox)
+            parrent.residueSiecBox = null;
+    }
 }
