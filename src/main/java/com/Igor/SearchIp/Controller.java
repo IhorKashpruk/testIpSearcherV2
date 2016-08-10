@@ -8,6 +8,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
@@ -18,7 +19,10 @@ import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
+import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -382,4 +386,20 @@ public class Controller {
         scrollPaneAnchorn.getChildren().add(MainBoxDivide);
     }
 
+    public void aboutProgram(ActionEvent actionEvent) {
+        final Stage dialog = new Stage();
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        dialog.initOwner(null);
+        VBox dialogVbox = new VBox();
+        VBox.setVgrow(dialogVbox, Priority.ALWAYS);
+        Label label = new Label("Ip Divider\nBuilt on August, 2016.");
+        label.setMaxWidth(Double.MAX_VALUE);
+        label.setPadding(new Insets(10,10,10,10));
+        label.setFont(new Font("Arial", 16));
+        label.setAlignment(Pos.CENTER);
+        dialogVbox.getChildren().add(label);
+        Scene dialogScene = new Scene(dialogVbox, 300, 200);
+        dialog.setScene(dialogScene);
+        dialog.show();
+    }
 }
