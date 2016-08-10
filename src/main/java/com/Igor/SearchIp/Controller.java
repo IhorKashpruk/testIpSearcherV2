@@ -267,7 +267,8 @@ public class Controller {
 
         SiecBox.searchLastNodes(siecBox, siec6List);
         for (Siec6 siec: siec6List){
-            siec.setStatus("z");
+            if(siec.getStatus().isEmpty())
+                siec.setStatus("z");
         }
 
         TableView<Siec6> siec6TableView = new TableView<>();

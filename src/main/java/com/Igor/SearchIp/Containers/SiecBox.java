@@ -176,7 +176,7 @@ public class SiecBox {
             if(suma < Integer.parseInt(data.getCountIp())){
                 int nIp = Integer.parseInt(data.getCountIp()) - suma;
                 residueSiecBox = new SiecBox(new Siec6(ipSiec, String.valueOf(generatedMask(nIp))
-                        , String.valueOf(nIp), "", "", "", ""), this);
+                        , String.valueOf(nIp), "n", "", "", ""), this);
                 residueSiecBox.mainBox.setStyle("-fx-border-color: gold; -fx-border-width: 3px;");
                 superMainBox.getChildren().add(residueSiecBox.getMainBox());
             }
