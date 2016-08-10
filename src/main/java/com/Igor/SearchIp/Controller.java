@@ -5,6 +5,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.*;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.chart.PieChart;
@@ -13,6 +14,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
@@ -22,6 +24,7 @@ import javafx.stage.Stage;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by igor on 02.08.16.
@@ -32,6 +35,10 @@ public class Controller {
     Diagram diagram;
     SiecBox siecBox;
 
+    @FXML
+    private AnchorPane scrollPaneAnchorn;
+    @FXML
+    private Button nextDivideButton;
     @FXML
     private PieChart pieChartCountIp;
     @FXML
@@ -152,31 +159,35 @@ public class Controller {
             for(Node node : HBoxFind.getChildren()){
                 node.setDisable(false);
             }
-
-            ListSiecToDivide.getItems().clear();
-            listToDivide.clear();
-
-            for(Siec6 siec: tableManager.getData()){
-                if(siec.getStatus().equals("n")){
-                    listToDivide.add(siec);
-                }
-            }
-
-            FXCollections.sort(listToDivide, (o1, o2) -> {
-                return Integer.parseInt(o2.getPriority()) - Integer.parseInt(o1.getPriority());
-            });
-
+            addSiecToListToDivide();;
         }
+    }
+
+    public void addSiecToListToDivide(){
+        ListSiecToDivide.getItems().clear();
+        listToDivide.clear();
+
+        for(Siec6 siec: tableManager.getData()){
+            if(siec.getStatus().equals("n")){
+                listToDivide.add(siec);
+            }
+        }
+
+        FXCollections.sort(listToDivide, (o1, o2) -> {
+            return Integer.parseInt(o2.getPriority()) - Integer.parseInt(o1.getPriority());
+        });
     }
 
     public void clickSave(ActionEvent actionEvent) {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Save file");
+        fileChooser.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("CSV File", "*.csv"));
 
         File selectedFile = fileChooser.showSaveDialog(null);
-        if(selectedFile == null) {
+        if(selectedFile != null) {
             try {
-                manager.writeData(tableManager.getData(), selectedFile.getPath() + ".csv");
+                manager.writeData(tableManager.getData(), selectedFile.getPath());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -239,8 +250,117 @@ public class Controller {
         stage.close();
     }
 
+    public void nextDivide(ActionEvent actionEvent){
+        if(siecBox == null){
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information");
+            alert.setContentText("First, divide the network.!");
+            alert.showAndWait();
+            return;
+        }
+        nextDivideButton.setDisable(true);
+        ApplayButton.setDisable(false);
+
+        List<Siec6> siec6List = new ArrayList<>();
+
+        MainBoxDivide.getChildren().clear();
+
+        SiecBox.searchLastNodes(siecBox, siec6List);
+        for (Siec6 siec: siec6List){
+            siec.setStatus("z");
+        }
+
+        TableView<Siec6> siec6TableView = new TableView<>();
+        siec6TableView.setEditable(true);
+        TableManager<Siec6> table = new TableManager<>(siec6TableView);
+
+        table.setData(siec6List);
+
+        for(String str : new String[]{"address", "mask", "countIp", "status", "priority"}){
+            table.addColumns(str, TextFieldTableCell.forTableColumn());
+        }
+
+        table.getTable().getColumns().get(3).setOnEditCommit(event -> {
+            String newValue = (String)event.getNewValue();
+            if(!newValue.equals("z") && !newValue.equals("n")){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information");
+                alert.setContentText("Status : {'z' - used, 'n' - unused}!");
+                alert.showAndWait();
+                event.getTableView().getSelectionModel().select(event.getTablePosition().getRow());
+                return;
+            }
+        });
+
+        table.getTable().getColumns().get(4).setOnEditCommit(event -> {
+            String newValue = (String)event.getNewValue();
+            if(!newValue.equals("1") && !newValue.equals("2") && !newValue.equals("3") &&
+                    !newValue.equals("4") && !newValue.equals("5")){
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Information");
+                alert.setContentText("Priority : {1-5}!");
+                alert.showAndWait();
+                event.getTableView().getSelectionModel().select(event.getTablePosition().getRow());
+                return;
+            }else
+            event.getTableView().getItems().get(event.getTablePosition().getRow())
+                    .setValue(event.getTableColumn().getText(), newValue);
+        });
+        int i = 5;
+        for(String str : new String[] {"client", "type"}){
+            table.addColumns(str, TextFieldTableCell.forTableColumn());
+            table.getTable().getColumns().get(i).setOnEditCommit(event -> {
+                event.getTableView().getItems().get(event.getTablePosition().getRow())
+                        .setValue(event.getTableColumn().getText(), (String) event.getNewValue());
+            });
+            i++;
+        }
+        i = 0;
+        for (; i < 3;i++){
+            table.getTable().getColumns().get(i).setEditable(false);
+        }
+
+//        MainBoxDivide.getChildren().add(table.getTable());
+        scrollPaneAnchorn.getChildren().clear();
+        scrollPaneAnchorn.getChildren().add(table.getTable());
+        ApplayButton.setOnAction(event -> {
+            for(int j = 0; j < table.getData().size(); j++){
+                if(table.getData().get(j).getPriority().isEmpty() ||
+                        table.getData().get(j).getClient().isEmpty() ||
+                        table.getData().get(j).getType().isEmpty()){
+
+                    Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                    alert.setTitle("Information");
+                    alert.setHeaderText("Some data have not been filled!");
+                    alert.setContentText("Are you ok with this?");
+                    Optional<ButtonType> result = alert.showAndWait();
+                    table.getTable().getSelectionModel().select(table.getData().get(j));
+                    if(result.get() == ButtonType.CANCEL){
+                        Alert alert1 = new Alert(Alert.AlertType.INFORMATION);
+                        alert1.setTitle("Information");
+                        alert1.setContentText("Cancel recording!");
+                        alert1.showAndWait();
+                        return;
+                    }
+                }
+            }
+
+            tableManager.getData().remove(siecBox.getData());
+            tableManager.getData().addAll(table.getData());
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Information");
+            alert.setContentText("New networks was added!");
+            alert.showAndWait();
+            addSiecToListToDivide();
+        });
+
+    }
 
     public void clickButton(ActionEvent actionEvent) {
+        scrollPaneAnchorn.getChildren().clear();
+        ApplayButton.setDisable(true);
+        nextDivideButton.setDisable(false);
         if(siecBox != null){
             siecBox.clear();
             MainBoxDivide.getChildren().clear();
@@ -256,26 +376,7 @@ public class Controller {
         VBox.setVgrow(MainBoxDivide, Priority.ALWAYS);
         siecBox = new SiecBox(siec, null);
         MainBoxDivide.getChildren().add(siecBox.getMainBox());
+        scrollPaneAnchorn.getChildren().add(MainBoxDivide);
     }
 
-    public void applyClick() {
-        if(siecBox == null){
-            Alert alert = new Alert(Alert.AlertType.INFORMATION);
-            alert.setTitle("Information");
-            alert.setContentText("First, divide the network.!");
-            alert.showAndWait();
-            return;
-        }
-
-        List<Siec6> siec6List = new ArrayList<>();
-
-        //MainBoxDivide.getChildren().clear();
-
-        SiecBox.searchLastNodes(siecBox, siec6List);
-
-        for(Siec6 siec : siec6List) {
-            System.out.println(siec);
-        }
-
-    }
 }

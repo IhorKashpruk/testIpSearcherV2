@@ -185,16 +185,8 @@ public class SiecBox {
 
         // Button erase network
         eraseSiecButton.setOnAction(event -> {
-            System.out.println("erase");
             if(parrent != null){
-            int index = superMainBox.getChildren().indexOf(mainBox);
-            superMainBox.getChildren().remove(index, superMainBox.getChildren().size());
-            removeSiecBox(this);
-                if(parrent.listSiecBox.size() == 0){
-                    parrent.mainBox.setStyle("-fx-border-style: dotted; -fx-border-color: lime; -fx-border-width: 3px;");
-                    parrent.mainBox.setDisable(false);
-                    parrent.mainBox.getChildren().get(0).setDisable(false);
-                }
+                removeSiecBox(this);
             }
         });
 
@@ -285,11 +277,17 @@ public class SiecBox {
     }
 
     public void removeSiecBox(SiecBox siecBox){
-        listSiecBox.clear();
-        residueSiecBox = null;
-        if(parrent == null) return;
-        parrent.listSiecBox.remove(siecBox);
-        if(parrent.residueSiecBox == siecBox)
-            parrent.residueSiecBox = null;
+        siecBox.listSiecBox.clear();
+        siecBox.residueSiecBox = null;
+        siecBox.superMainBox.getChildren().clear();
+        siecBox.mainBox = null;
+        siecBox.parrent.listSiecBox.clear();
+        siecBox.parrent.residueSiecBox = null;
+        siecBox.parrent.superMainBox.getChildren().clear();
+        siecBox.parrent.superMainBox.getChildren().add(siecBox.parrent.mainBox);
+        siecBox.parrent.mainBox.setStyle("-fx-border-style: dotted; -fx-border-color: lime; -fx-border-width: 3px;");
+        siecBox.parrent.mainBox.setDisable(false);
+        siecBox.parrent.mainBox.getChildren().get(0).setDisable(false);
+        ((HBox)siecBox.parrent.mainBox.getChildren().get(1)).getChildren().get(1).setDisable(false);
     }
 }

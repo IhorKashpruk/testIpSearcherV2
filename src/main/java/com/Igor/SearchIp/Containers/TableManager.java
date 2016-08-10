@@ -22,6 +22,10 @@ public class TableManager<T extends SiecModel> {
     private TableView<T> table;
     private List<String> columnsName = new ArrayList<>();
 
+    public TableView<T> getTable() {
+        return table;
+    }
+
     public void setColumnsName(List<String> columnsName) {
         this.columnsName = columnsName;
     }
@@ -51,7 +55,7 @@ public class TableManager<T extends SiecModel> {
         for (String str :
                 columnsName) {
 
-            TableColumn tableColumn = new TableColumn();
+            TableColumn tableColumn = new TableColumn(str);
             tableColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<T, String>, ObservableValue<String>>() {
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<T, String> param) {
                     return new SimpleStringProperty(param.getValue().getValue(str));
@@ -65,6 +69,7 @@ public class TableManager<T extends SiecModel> {
     public List<String> getColumnsName() {
         return columnsName;
     }
+
     public void addColumns(String columnName, Callback<TableColumn<T, String>, TableCell<T, String>> callback){
         columnsName.add(columnName);
         TableColumn tableColumn = new TableColumn(columnName);
