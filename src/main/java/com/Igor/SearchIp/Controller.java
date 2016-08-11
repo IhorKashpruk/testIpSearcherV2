@@ -1,7 +1,10 @@
 package com.Igor.SearchIp;
 
 import com.Igor.SearchIp.Containers.*;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 import javafx.collections.ObservableList;
 import javafx.event.*;
 import javafx.fxml.FXML;
@@ -58,8 +61,6 @@ public class Controller {
     private TextField textField_Find;
     @FXML
     private ChoiceBox choiceBox;
-    @FXML
-    private CheckBox CHSetSelect;
     @FXML
     private HBox HBoxFind;
     @FXML
@@ -190,9 +191,40 @@ public class Controller {
 
         // Пошук ЗРОБИТИ
 
-
         okButton.setGraphic(new ImageView(new Image("Icons/scissors.png")));
         ListSiecToDivide.setItems(listToDivide);
+        ListSiecToDivide.setCellFactory(param -> new ListCell<Siec6>(){
+            @Override
+            protected void updateItem(Siec6 item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (item == null || empty) {
+                    setText(null);
+                } else {
+                    HBox hBox = new HBox(10);
+                    Label labelAddrMaskCount = new Label(item.getAddress() + " [" + item.getMask() + "] {" + item.getCountIp() + "}");
+                    String url = "Icons/battery_unknow.png";
+                    if(item.getPriority() != null || item.getPriority().isEmpty())
+                        switch (Integer.parseInt(item.getPriority())){
+                            case 1: url = "Icons/battery_broke.png";
+                                break;
+                            case 2: url = "Icons/battery-1.png";
+                                break;
+                            case 3: url = "Icons/battery-2.png";
+                                break;
+                            case 4: url = "Icons/battery-3.png";
+                                break;
+                            case 5: url = "Icons/battery.png";
+                                break;
+                        }
+                    Label image = new Label(null, new ImageView(new Image(url)));
+                    hBox.getChildren().addAll(labelAddrMaskCount, image);
+                    setText(null);
+                    setGraphic(hBox);
+                }
+            }
+        });
+
         textField_Find.setPromptText("Enter text...");
     }
 
@@ -202,9 +234,6 @@ public class Controller {
         if(str != null){
             treeViewManager.selectItems(treeViewManager.getRootNode(), str, newValue);
         }
-    }
-
-    public void clickCHSetSelect(ActionEvent actionEvent) {
     }
 
     public void clieckExit() {
@@ -348,6 +377,8 @@ public class Controller {
         siecBox = new SiecBox(siec, null);
         MainBoxDivide.getChildren().add(siecBox.getMainBox());
         scrollPaneAnchorn.getChildren().add(MainBoxDivide);
+        treeViewManager.getTreeView().getSelectionModel().clearSelection();
+        treeViewManager.selectItem(treeViewManager.getRootNode(), siec);
     }
 
     public void aboutProgram(ActionEvent actionEvent) {
@@ -366,4 +397,5 @@ public class Controller {
         dialog.setScene(dialogScene);
         dialog.show();
     }
+
 }

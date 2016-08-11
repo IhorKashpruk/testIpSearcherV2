@@ -59,17 +59,12 @@
                             <Insets left="10.0" top="5.0" />
                           </HBox.margin>
                         </TextField>
-                        <CheckBox fx:id="CHSetSelect" minWidth="30.0" mnemonicParsing="false" onAction="#clickCHSetSelect" selected="true" text="SR" HBox.hgrow="NEVER">
-                          <HBox.margin>
-                            <Insets left="10.0" top="7.0" />
-                          </HBox.margin>
-                        </CheckBox>
                       </children>
                       <padding>
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x2" />
                       </padding>
                     </HBox>
-                              <TreeView fx:id="treeView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
+                              <TreeView fx:id="treeView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" showRoot="false" style="-fx-background-color: azure;" VBox.vgrow="ALWAYS" />
                   </children>
                 </VBox>
               </children>
@@ -121,7 +116,7 @@
                                                     <Insets left="5.0" right="5.0" top="5.0" />
                                                   </VBox.margin>
                                                 </Label>
-                                                <ListView fx:id="ListSiecToDivide" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefHeight="130.0" prefWidth="347.0" VBox.vgrow="ALWAYS">
+                                                <ListView fx:id="ListSiecToDivide" editable="true" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minWidth="-1.0" prefHeight="130.0" prefWidth="347.0" VBox.vgrow="ALWAYS">
                                                   <VBox.margin>
                                                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" fx:id="x1" />
                                                   </VBox.margin>
