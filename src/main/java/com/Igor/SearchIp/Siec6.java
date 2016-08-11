@@ -1,6 +1,7 @@
 package com.Igor.SearchIp;
 
 import com.opencsv.bean.CsvBind;
+import com.sun.org.apache.xml.internal.security.algorithms.implementations.IntegrityHmac;
 
 /**
  * Created by igor on 03.08.16.
@@ -163,4 +164,127 @@ public class Siec6 extends SiecModel {
         }
         return null;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Siec6 siec6 = (Siec6) o;
+
+        if (address != null ? !address.equals(siec6.address) : siec6.address != null) return false;
+        if (mask != null ? !mask.equals(siec6.mask) : siec6.mask != null) return false;
+        if (countIp != null ? !countIp.equals(siec6.countIp) : siec6.countIp != null) return false;
+        if (status != null ? !status.equals(siec6.status) : siec6.status != null) return false;
+        if (priority != null ? !priority.equals(siec6.priority) : siec6.priority != null) return false;
+        if (client != null ? !client.equals(siec6.client) : siec6.client != null) return false;
+        return type != null ? type.equals(siec6.type) : siec6.type == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = address != null ? address.hashCode() : 0;
+        result = 31 * result + (mask != null ? mask.hashCode() : 0);
+        result = 31 * result + (countIp != null ? countIp.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (priority != null ? priority.hashCode() : 0);
+        result = 31 * result + (client != null ? client.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        return result;
+    }
+
+    public boolean thisIsParentNetwortk(Siec6 network){
+        if(this.equals(network))
+            return false;
+
+
+        String lastAddressFirst = generatedIpSiec(network.address,Integer.parseInt(network.countIp));
+        String lastAddressSecond = generatedIpSiec(address,Integer.parseInt(countIp));
+
+        if((isBigger(address, network.address) || address.equals(network.address)) &&
+                (isBigger(lastAddressFirst, lastAddressSecond) || lastAddressFirst.equals(lastAddressSecond))){
+            return true;
+        }
+        return false;
+    }
+
+    public int isBigger(Siec6 network){
+        if(network == null)
+            return 1;
+        if(this.mask == null || network.mask == null ){
+                return Integer.parseInt(network.countIp) - Integer.parseInt(this.countIp);
+        }
+        int maskN1 = Integer.parseInt(this.mask);
+        int maskN2 = Integer.parseInt(network.mask);
+        if(maskN1 != maskN2)
+            return maskN1-maskN2;
+
+        if(isBigger(this.address, network.address)){
+            return 1;
+        }else
+            return -1;
+    }
+
+    public boolean isBigger(String first, String second){
+        String[] strs = first.split("\\.");
+        String[] strs2 = second.split("\\.");
+
+        if(strs.length != 4 || strs2.length != 4)
+            return false;
+
+        int[] args  = new int[4];
+        int[] args2 = new int[4];
+        for(int i = 0; i < 4; i++) {
+            args[i] = Integer.parseInt(strs[i]);
+            args2[i] = Integer.parseInt(strs2[i]);
+        }
+
+        for(int i = 0; i < 4; i++){
+            if(args[i] > args2[i])
+                return true;
+            if(args[i] < args2[i])
+                return false;
+        }
+        return false;
+    }
+
+    private String generatedIpSiec(String ip, int count){
+        String[] strs = ip.split("\\.");
+
+        if(strs.length != 4)
+            return null;
+
+        int[] args = new int[4];
+        for(int i = 0; i < 4; i++)
+            args[i] = Integer.parseInt(strs[i]);
+
+        while(count > 0){
+            int size = 1;
+            if(args[3] == 255){
+                if(args[2] == 255){
+                    if(args[1] == 255){
+                        if(args[0] == 255){
+                            args[0] = 0;
+                        }else
+                            args[0] += size;
+                        args[1]++;
+                    }else
+                        args[1] += size;
+                    args[2] = 0;
+                }else
+                    args[2] += size;
+                args[3] = 0;
+            }else {
+                size = 255 - args[3];
+                size = count-size < 0 ? count : size;
+                args[3] += size;
+            }
+            count -= size;
+        }
+
+        return String.valueOf(args[0]) + "." + String.valueOf(args[1]) + "." + String.valueOf(args[2]) + "." + String.valueOf(args[3]);
+    }
+
+
 }

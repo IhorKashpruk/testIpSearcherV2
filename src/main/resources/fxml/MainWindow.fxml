@@ -69,7 +69,7 @@
                         <Insets bottom="5.0" left="5.0" right="5.0" top="5.0" fx:id="x2" />
                       </padding>
                     </HBox>
-                    <TableView fx:id="table" blendMode="DARKEN" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-1.0" minWidth="200.0" mouseTransparent="false" prefHeight="478.0" prefWidth="330.0" VBox.vgrow="ALWAYS" />
+                              <TreeView fx:id="treeView" maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" />
                   </children>
                 </VBox>
               </children>

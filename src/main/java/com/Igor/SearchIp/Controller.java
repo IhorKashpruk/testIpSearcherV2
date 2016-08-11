@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static javafx.scene.control.SelectionMode.MULTIPLE;
+
 /**
  * Created by igor on 02.08.16.
  */
@@ -39,6 +41,9 @@ public class Controller {
     Diagram diagram;
     SiecBox siecBox;
 
+
+    TreeViewManager treeViewManager;
+
     @FXML
     private AnchorPane scrollPaneAnchorn;
     @FXML
@@ -46,7 +51,7 @@ public class Controller {
     @FXML
     private PieChart pieChartCountIp;
     @FXML
-    private TableView<Siec6> table;
+    private TreeView<Siec6> treeView;
     @FXML
     private VBox VBoxMain;
     @FXML
@@ -71,11 +76,6 @@ public class Controller {
     @FXML
     public void openFile(ActionEvent actionEvent) {
 
-        choiceBox.getItems().clear();
-        table.setEditable(true);
-        table.getColumns().removeAll(table.getColumns());
-        tableManager.clearColumnsName();
-
         pieChartCountIp.dataProperty().get().removeAll(pieChartCountIp.dataProperty().get());
 
         FileChooser fileChooser = new FileChooser();
@@ -87,54 +87,22 @@ public class Controller {
 
         if(selectedFile != null){
             manager = new CSVManager(selectedFile.getPath(), ';');
-            List list = null;
+            List<Siec6> list = null;
             try {
                 list = manager.readData(Siec6.class);
             } catch (IOException e) {
                 e.printStackTrace();
             }
             System.out.println(list);
-            for (String str :
-                    new String[]{"address", "mask", "countIp"}){
-                tableManager.addColumns(str, TextFieldTableCell.forTableColumn());
-            }
-            tableManager.addColumns("status", param -> new TableCell<Siec6, String>(){
-                VBox vb;
-                ImageView imgVw;
 
-                {
-                    vb = new VBox();
-                    vb.setAlignment(Pos.CENTER);
-                    imgVw = new ImageView();
-                    imgVw.setFitHeight(20);
-                    imgVw.setFitWidth(20);
-                    vb.getChildren().addAll(imgVw);
-                    setGraphic(vb);
-                }
-                @Override
-                public void updateItem(String item, boolean empty){
-                    if(item != null) {
-                        if(item.equals("z"))
-                            imgVw.setImage(new Image("Icons/locked.png"));
-                        if(item.equals("n"))
-                            imgVw.setImage(new Image("Icons/locked-1.png"));
-                    }
-                }
-            });
-            for (String str :
-                    new String[]{"priority", "client", "type"}) {
-                tableManager.addColumns(str, TextFieldTableCell.forTableColumn());
-            }
-            tableManager.setData(list);
-
-            //Find
-            choiceBox.setItems(FXCollections.observableArrayList(tableManager.getColumnsName()));
+            treeViewManager.setData(list);
+            treeViewManager.upload();
 
 
             double wolnych = 0;
             double zajetych = 0;
 
-            for(SiecModel s : tableManager.getData()){
+            for(SiecModel s : list){
                 String str;
                 if((str = s.getValue("status")) != null){
                     int n = Integer.parseInt(s.getValue("countIp"));
@@ -171,10 +139,11 @@ public class Controller {
         ListSiecToDivide.getItems().clear();
         listToDivide.clear();
 
-        for(Siec6 siec: tableManager.getData()){
-            if(siec.getStatus().equals("n")){
-                listToDivide.add(siec);
-            }
+        for(Siec6 siec: treeViewManager.getData()){
+            if(siec.getStatus() != null)
+                if(siec.getStatus().equals("n")){
+                    listToDivide.add(siec);
+                }
         }
 
         FXCollections.sort(listToDivide, (o1, o2) -> {
@@ -191,7 +160,7 @@ public class Controller {
         File selectedFile = fileChooser.showSaveDialog(null);
         if(selectedFile != null) {
             try {
-                manager.writeData(tableManager.getData(), selectedFile.getPath());
+                manager.writeData(treeViewManager.getData(), selectedFile.getPath());
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -201,56 +170,45 @@ public class Controller {
 
     @FXML
     public void initialize(){
-        tableManager = new TableManager<>(table);
+        treeViewManager = new TreeViewManager(treeView);
+        treeViewManager.getTreeView().getSelectionModel().setSelectionMode(MULTIPLE);
         diagram = new Diagram(pieChartCountIp);
         VBoxMain.setVisible(false);
         if(choiceBox.getItems().size() != 0) choiceBox.getItems().clear();
-        table.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
 
         for(Node node :HBoxFind.getChildren()){
             node.setDisable(true);
         }
 
-        // Пошук по таблиці
         textField_Find.textProperty().addListener((observable, oldValue, newValue) -> {
-            findIntoTable();
+            findSiec(newValue);
         });
+
+        choiceBox.setItems(FXCollections.observableArrayList(new String[]{
+            "address", "mask", "countIp", "status", "priority", "client", "type"
+        }));
+
+        // Пошук ЗРОБИТИ
+
 
         okButton.setGraphic(new ImageView(new Image("Icons/scissors.png")));
         ListSiecToDivide.setItems(listToDivide);
         textField_Find.setPromptText("Enter text...");
     }
 
-    private void findIntoTable(){
-        table.getSelectionModel().clearSelection();
+    public void findSiec(String newValue){
+        treeViewManager.getTreeView().getSelectionModel().clearSelection();
         String str = (String) choiceBox.getSelectionModel().getSelectedItem();
         if(str != null){
-            for (Siec6 siec : tableManager.getData()) {
-                if(siec.getValue(str).equals(textField_Find.getText())){
-                    if(CHSetSelect.isSelected()) {
-                        table.getSelectionModel().select(siec);
-                    }
-                    else {
-                        int numberRow = tableManager.getData().indexOf(siec);
-                        table.getSelectionModel().select(numberRow, table.getColumns().get(choiceBox.getSelectionModel().getSelectedIndex()));
-                    }
-                }
-            }
+            treeViewManager.selectItems(treeViewManager.getRootNode(), str, newValue);
         }
     }
 
     public void clickCHSetSelect(ActionEvent actionEvent) {
-        if(CHSetSelect.isSelected()){
-            table.getSelectionModel().setCellSelectionEnabled(false);
-            findIntoTable();
-        }
-        else
-            table.getSelectionModel().setCellSelectionEnabled(true);
-            findIntoTable();
     }
 
     public void clieckExit() {
-        Stage stage = (Stage) table.getScene().getWindow();
+        Stage stage = (Stage) treeView.getScene().getWindow();
         stage.close();
     }
 
@@ -352,8 +310,14 @@ public class Controller {
                 }
             }
 
-            tableManager.getData().remove(siecBox.getData());
-            tableManager.getData().addAll(table.getData());
+            int index = treeViewManager.getData().indexOf(siecBox.getData());
+            treeViewManager.getData().get(index).setStatus(null);
+            treeViewManager.getData().get(index).setPriority(null);
+            treeViewManager.getData().get(index).setClient(null);
+            treeViewManager.getData().get(index).setType(null);
+//            treeViewManager.getData().remove(siecBox.getData());
+            treeViewManager.getData().addAll(table.getData());
+            treeViewManager.upload();
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Information");
