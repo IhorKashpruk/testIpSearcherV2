@@ -197,6 +197,11 @@ public class Controller {
             @Override
             protected void updateItem(Siec6 item, boolean empty) {
                 super.updateItem(item, empty);
+                if (isEmpty()) {
+                    setGraphic(null);
+                    setText(null);
+                    return;
+                }
 
                 if (item == null || empty) {
                     setText(null);
