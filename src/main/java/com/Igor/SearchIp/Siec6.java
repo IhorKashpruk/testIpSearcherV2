@@ -226,7 +226,7 @@ public class Siec6 extends SiecModel {
             return -1;
     }
 
-    public boolean isBigger(String first, String second){
+    public static boolean isBigger(String first, String second){
         String[] strs = first.split("\\.");
         String[] strs2 = second.split("\\.");
 
@@ -249,7 +249,7 @@ public class Siec6 extends SiecModel {
         return false;
     }
 
-    private String generatedIpSiec(String ip, int count){
+    public static String generatedIpSiec(String ip, int count){
         String[] strs = ip.split("\\.");
 
         if(strs.length != 4)
@@ -285,6 +285,7 @@ public class Siec6 extends SiecModel {
 
         return String.valueOf(args[0]) + "." + String.valueOf(args[1]) + "." + String.valueOf(args[2]) + "." + String.valueOf(args[3]);
     }
+
 
 
 }

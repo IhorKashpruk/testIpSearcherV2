@@ -1,21 +1,17 @@
 package com.Igor.SearchIp.Containers;
 
 import com.Igor.SearchIp.Siec6;
-import com.sun.org.apache.bcel.internal.generic.LADD;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
-import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.stage.WindowEvent;
-import sun.reflect.generics.tree.Tree;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Created by Игорь on 11.08.2016.
@@ -48,15 +44,28 @@ public class TreeViewManager {
         });
 
         MenuItem item1 = new MenuItem("Add");
-        item1.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                System.out.println("About");
-            }
+        item1.setOnAction(e -> {
+            TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
+            if(siec != null){
+                new AddSiecDialog(siec.getValue(), this).show();
+            }else
+                new AddSiecDialog(rootNode.getValue(), this).show();
         });
         MenuItem item2 = new MenuItem("Delete");
-        item2.setOnAction(new EventHandler<ActionEvent>() {
-            public void handle(ActionEvent e) {
-                System.out.println("Preferences");
+        item2.setOnAction(e -> {
+            TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
+            if(siec != null){
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+                alert.setTitle("Information");
+                alert.setHeaderText("Delete network: " + siec.getValue());
+                alert.setContentText("Are you sure?");
+                Optional<ButtonType> result = alert.showAndWait();
+                if(result.get() == ButtonType.OK){
+                    remove(siec);
+                    siec.getParent().getChildren().remove(siec);
+                    treeView.getSelectionModel().clearSelection();
+                    upload();
+                }
             }
         });
         contextMenu.getItems().addAll(item1, item2);
@@ -147,6 +156,15 @@ public class TreeViewManager {
         }
     }
 
+    public void remove(TreeItem<Siec6> start){
+        for(TreeItem<Siec6> depNode : start.getChildren()){
+            data.remove(depNode.getValue());
+            remove(depNode);
+        }
+        data.remove(start.getValue());
+    }
+
+
     public TreeItem<Siec6> getRootNode() {
         return rootNode;
     }
@@ -168,7 +186,7 @@ public class TreeViewManager {
                 Label labelInfo = new Label();
                 Label icon;
                 String url;
-                if(item.getStatus() == null){
+                if(item.getStatus() == null || item.getStatus().isEmpty()){
                     url = "Icons/network.png";
 //                    labelAddMasCount.setStyle("-fx-background-color: #F7FFFE;");
                 }else
