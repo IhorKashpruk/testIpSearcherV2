@@ -47,10 +47,10 @@ import static javafx.scene.control.SelectionMode.MULTIPLE;
  * Created by igor on 02.08.16.
  */
 public class Controller {
-    CSVManager manager;
-    TableManager<Siec6> tableManager;
-    Diagram diagram;
-    SiecBox siecBox;
+    private CSVManager manager;
+    private TableManager<Siec6> tableManager;
+    private Diagram diagram;
+    private SiecBox siecBox;
 
 
     TreeViewManager treeViewManager;
@@ -140,7 +140,7 @@ public class Controller {
             for(Node node : HBoxFind.getChildren()){
                 node.setDisable(false);
             }
-            addSiecToListToDivide();;
+            addSiecToListToDivide();
         }
     }
 
@@ -155,9 +155,7 @@ public class Controller {
                 }
         }
 
-        FXCollections.sort(listToDivide, (o1, o2) -> {
-            return Integer.parseInt(o2.getPriority()) - Integer.parseInt(o1.getPriority());
-        });
+        FXCollections.sort(listToDivide, (o1, o2) -> Integer.parseInt(o2.getPriority()) - Integer.parseInt(o1.getPriority()));
     }
 
     public void clickSave(ActionEvent actionEvent) {
@@ -189,9 +187,7 @@ public class Controller {
             node.setDisable(true);
         }
 
-        textField_Find.textProperty().addListener((observable, oldValue, newValue) -> {
-            findSiec(newValue);
-        });
+        textField_Find.textProperty().addListener((observable, oldValue, newValue) -> findSiec(newValue));
 
         choiceBox.setItems(FXCollections.observableArrayList(new String[]{
             "address", "mask", "countIp", "status", "priority", "client", "type"
@@ -288,12 +284,12 @@ public class Controller {
         int i = 5;
         for(String str : new String[] {"client", "type"}){
             table.addColumns(str, TextFieldTableCell.forTableColumn());
-            table.getTable().getColumns().get(i).setOnEditCommit(event -> {
-                event.getTableView().getItems().get(event.getTablePosition().getRow())
-                        .setValue(event.getTableColumn().getText(), (String) event.getNewValue());
-            });
+            table.getTable().getColumns().get(i).setOnEditCommit(event -> event.getTableView().getItems().get(event.getTablePosition().getRow())
+                    .setValue(event.getTableColumn().getText(), (String) event.getNewValue()));
             i++;
         }
+        table.addColumns("date", TextFieldTableCell.forTableColumn());
+
         i = 0;
         for (; i < 3;i++){
             table.getTable().getColumns().get(i).setEditable(false);
@@ -301,7 +297,7 @@ public class Controller {
 
 //        MainBoxDivide.getChildren().add(table.getTable());
         scrollPaneAnchorn.getChildren().clear();
-        scrollPaneAnchorn.getChildren().add(table.getTable());
+        scrollPaneAnchorn.getChildren().setAll(table.getTable());
         ApplayButton.setOnAction(event -> {
             for(int j = 0; j < table.getData().size(); j++){
                 if(table.getData().get(j).getPriority().isEmpty() ||
@@ -329,10 +325,6 @@ public class Controller {
             treeViewManager.getData().get(index).setPriority(null);
             treeViewManager.getData().get(index).setClient(null);
             treeViewManager.getData().get(index).setType(null);
-//            treeViewManager.getData().remove(siecBox.getData());
-            for(int j = 0; j < table.getData().size(); j++){
-                table.getData().get(j).setDate(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
-            }
             treeViewManager.getData().addAll(table.getData());
             treeViewManager.upload();
 

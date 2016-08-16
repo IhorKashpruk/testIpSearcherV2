@@ -6,12 +6,14 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.util.Locale;
+
 /**
  * Created by igor on 02.08.16.
  */
 public class Main extends Application {
     public static void main(String[] args) {
-        launch(args);
+        Locale.setDefault(Locale.ENGLISH);launch(args);
     }
 
     @Override

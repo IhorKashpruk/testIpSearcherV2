@@ -260,7 +260,7 @@ public class AddSiecDialog {
             int selectIndexStatus = labelStatus.getSelectionModel().getSelectedIndex();
             String networkId =  selectIndexStatus == 0 ? "n" : selectIndexStatus == 1 ? "z" : "";
             Siec6 siec6 = new Siec6(labelIp.getText(), labelMask.getText(), labelCountIp.getText(),
-                   networkId, labelPriority.getSelectionModel().getSelectedItem(), labelClient.getText(), labelType.getText(), new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+                   networkId, labelPriority.getSelectionModel().getSelectedItem(), labelClient.getText(), labelType.getText(), new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
             manager.getData().add(siec6);
             item.getValue().setStatus(null);
             manager.upload();

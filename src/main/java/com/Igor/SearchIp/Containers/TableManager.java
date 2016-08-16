@@ -10,7 +10,10 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.util.Callback;
+import javafx.util.StringConverter;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -138,34 +141,86 @@ public class TableManager<T extends SiecModel> {
                     }
                 };
 
-        if(columnName.equals("status")) {
-            tableColumn.setCellFactory(cellFactory);
-        }else
-        if(columnName.equals("priority")){
-            tableColumn.setCellFactory(column -> new TableCell<T, String>() {
-                final ComboBox<String> btn = new ComboBox<>();
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
+        switch (columnName) {
+            case "status":
+                tableColumn.setCellFactory(cellFactory);
+                break;
+            case "priority":
+                tableColumn.setCellFactory(column -> new TableCell<T, String>() {
+                    final ComboBox<String> btn = new ComboBox<>();
 
-                    if (item == null || empty) {
-                        setText(null);
-                        setStyle("");
-                    } else {
-                        btn.getItems().addAll("1", "2", "3", "4", "5");
-                        btn.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-                            Siec6 siec = (Siec6) getTableView().getItems().get(getIndex());
-                            siec.setPriority(newValue);
-                        });
-                        btn.getSelectionModel().select(4);
-                        setGraphic(btn);
-                        setText(null);
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty) {
+                            setText(null);
+                            setStyle("");
+                        } else {
+                            btn.getItems().addAll("1", "2", "3", "4", "5");
+                            btn.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                                Siec6 siec = (Siec6) getTableView().getItems().get(getIndex());
+                                siec.setPriority(newValue);
+                            });
+                            btn.getSelectionModel().select(4);
+                            setGraphic(btn);
+                            setText(null);
+                        }
                     }
-                }
-            });
+                });
+                break;
+            case "date":
+                tableColumn.setCellFactory(column -> new TableCell<T, String>() {
+                    final DatePicker datePicker = new DatePicker();
+
+                    @Override
+                    protected void updateItem(String item, boolean empty) {
+                        super.updateItem(item, empty);
+
+                        if (item == null || empty) {
+                            setText(null);
+                            setStyle("");
+                        } else {
+                            String pattern = "yyyy-MM-dd";
+                            StringConverter converter = new StringConverter<LocalDate>() {
+                                DateTimeFormatter dateFormatter =
+                                        DateTimeFormatter.ofPattern(pattern);
+
+                                @Override
+                                public String toString(LocalDate date) {
+                                    if (date != null) {
+                                        return dateFormatter.format(date);
+                                    } else {
+                                        return "";
+                                    }
+                                }
+
+                                @Override
+                                public LocalDate fromString(String string) {
+                                    if (string != null && !string.isEmpty()) {
+                                        return LocalDate.parse(string, dateFormatter);
+                                    } else {
+                                        return null;
+                                    }
+                                }
+                            };
+                            datePicker.setConverter(converter);
+                            datePicker.setPromptText(pattern.toLowerCase());
+                            datePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+                                Siec6 siec = (Siec6) getTableView().getItems().get(getIndex());
+                                siec.setDate(newValue.toString());
+                            });
+                            datePicker.setValue(LocalDate.now());
+                            setGraphic(datePicker);
+                            setText(null);
+                        }
+                    }
+                });
+                break;
+            default:
+                tableColumn.setCellFactory(callback);
+                break;
         }
-        else
-            tableColumn.setCellFactory(callback);
         table.getColumns().add(tableColumn);
     }
 
