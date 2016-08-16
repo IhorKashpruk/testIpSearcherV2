@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.scene.chart.PieChart;
 import javafx.scene.control.*;
 import javafx.scene.control.TextField;
+import javafx.scene.control.cell.ComboBoxTableCell;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -27,9 +28,16 @@ import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
+import javafx.util.converter.DefaultStringConverter;
+import org.apache.poi.ss.formula.functions.T;
+import org.apache.xmlbeans.StringEnumAbstractBase;
 
+import javax.swing.table.TableModel;
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 
@@ -277,34 +285,6 @@ public class Controller {
             table.addColumns(str, TextFieldTableCell.forTableColumn());
         }
 
-        table.getTable().getColumns().get(3).setOnEditCommit(event -> {
-            String newValue = (String)event.getNewValue();
-            if(!newValue.equals("z") && !newValue.equals("n")){
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Information");
-                alert.setContentText("Status : {'z' - used, 'n' - unused}!");
-                alert.showAndWait();
-                event.getTableView().getSelectionModel().select(event.getTablePosition().getRow());
-                return;
-            }
-            event.getTableView().getItems().get(event.getTablePosition().getRow())
-                    .setValue(event.getTableColumn().getText(), newValue);
-        });
-
-        table.getTable().getColumns().get(4).setOnEditCommit(event -> {
-            String newValue = (String)event.getNewValue();
-            if(!newValue.equals("1") && !newValue.equals("2") && !newValue.equals("3") &&
-                    !newValue.equals("4") && !newValue.equals("5")){
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Information");
-                alert.setContentText("Priority : {1-5}!");
-                alert.showAndWait();
-                event.getTableView().getSelectionModel().select(event.getTablePosition().getRow());
-                return;
-            }else
-            event.getTableView().getItems().get(event.getTablePosition().getRow())
-                    .setValue(event.getTableColumn().getText(), newValue);
-        });
         int i = 5;
         for(String str : new String[] {"client", "type"}){
             table.addColumns(str, TextFieldTableCell.forTableColumn());
@@ -350,6 +330,9 @@ public class Controller {
             treeViewManager.getData().get(index).setClient(null);
             treeViewManager.getData().get(index).setType(null);
 //            treeViewManager.getData().remove(siecBox.getData());
+            for(int j = 0; j < table.getData().size(); j++){
+                table.getData().get(j).setDate(new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(new Date()));
+            }
             treeViewManager.getData().addAll(table.getData());
             treeViewManager.upload();
 

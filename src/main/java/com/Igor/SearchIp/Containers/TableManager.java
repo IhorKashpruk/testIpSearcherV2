@@ -1,18 +1,20 @@
 package com.Igor.SearchIp.Containers;
 
+import com.Igor.SearchIp.Siec6;
 import com.Igor.SearchIp.SiecModel;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TableCell;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
+import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.util.Callback;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.stream.Stream;
 
 /**
  * Created by igor on 04.08.16.
@@ -72,14 +74,103 @@ public class TableManager<T extends SiecModel> {
 
     public void addColumns(String columnName, Callback<TableColumn<T, String>, TableCell<T, String>> callback){
         columnsName.add(columnName);
-        TableColumn tableColumn = new TableColumn(columnName);
-        tableColumn.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<T, String>, ObservableValue<String>>() {
-            public ObservableValue<String> call(TableColumn.CellDataFeatures<T, String> param) {
-                return new SimpleStringProperty(param.getValue().getValue(columnName));
-            }
-        });
-        tableColumn.setCellFactory(callback);
+        TableColumn<T, String> tableColumn = new TableColumn<>(columnName);
+        tableColumn.setCellValueFactory(param -> new SimpleStringProperty(param.getValue().getValue(columnName)));
+        Callback<TableColumn<T, String>, TableCell<T, String>> cellFactory = //
+                new Callback<TableColumn<T, String>, TableCell<T, String>>()
+                {
+                    @Override
+                    public TableCell call( final TableColumn<T, String> param )
+                    {
+                        final TableCell<T, String> cell = new TableCell<T, String>()
+                        {
+                            final ComboBox<ImageView> btn = new ComboBox<>();
+                            @Override
+                            public void updateItem( String item, boolean empty )
+                            {
+                                super.updateItem( item, empty );
+                                if ( empty )
+                                {
+                                    setGraphic( null );
+                                    setText( null );
+                                }
+                                else
+                                {
+                                    btn.setMaxWidth(50);
+                                    btn.getItems().addAll(
+                                            new ImageView(new Image("Icons/plus.png")),
+                                            new ImageView(new Image("Icons/close_network.png")),
+                                            new ImageView(new Image("Icons/network.png"))
+                                    );
+                                    btn.setCellFactory(new Callback<ListView<ImageView>, ListCell<ImageView>>() {
+                                        @Override public ListCell<ImageView> call(ListView<ImageView> p) {
+                                            return new ListCell<ImageView>() {
+                                                private final ImageView rectangle;
+                                                {
+                                                    setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
+                                                    rectangle = new ImageView();
+                                                }
+                                                @Override protected void updateItem(ImageView item, boolean empty) {
+                                                    super.updateItem(item, empty);
+
+                                                    if (item == null || empty) {
+                                                        setGraphic(null);
+                                                    } else {
+                                                        rectangle.setImage(item.getImage());
+                                                        setGraphic(rectangle);
+                                                    }
+                                                }
+                                            };
+                                        }
+                                    });
+                                    btn.getSelectionModel().selectedIndexProperty().addListener((observable, oldValue, newValue) -> {
+                                            Siec6 siec = (Siec6) getTableView().getItems().get(getIndex());
+                                            siec.setStatus(newValue.intValue() == 0 ? "n" : newValue.intValue() == 1 ? "z" : "");
+                                    });
+
+                                    btn.getSelectionModel().select(1);
+                                    setGraphic( btn );
+                                    setText( null );
+                                }
+                            }
+                        };
+                        return cell;
+                    }
+                };
+
+        if(columnName.equals("status")) {
+            tableColumn.setCellFactory(cellFactory);
+        }else
+        if(columnName.equals("priority")){
+            tableColumn.setCellFactory(column -> new TableCell<T, String>() {
+                final ComboBox<String> btn = new ComboBox<>();
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+
+                    if (item == null || empty) {
+                        setText(null);
+                        setStyle("");
+                    } else {
+                        btn.getItems().addAll("1", "2", "3", "4", "5");
+                        btn.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                            Siec6 siec = (Siec6) getTableView().getItems().get(getIndex());
+                            siec.setPriority(newValue);
+                        });
+                        btn.getSelectionModel().select(4);
+                        setGraphic(btn);
+                        setText(null);
+                    }
+                }
+            });
+        }
+        else
+            tableColumn.setCellFactory(callback);
         table.getColumns().add(tableColumn);
+    }
+
+    public void addColumns(TableColumn column){
+        table.getColumns().add(column);
     }
 
     public void removeAllData(){

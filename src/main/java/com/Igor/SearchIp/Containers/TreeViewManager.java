@@ -1,13 +1,10 @@
 package com.Igor.SearchIp.Containers;
 
 import com.Igor.SearchIp.Siec6;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
-import javafx.stage.WindowEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -20,7 +17,7 @@ import java.util.Optional;
 
 public class TreeViewManager {
     private TreeItem<Siec6> rootNode =
-            new TreeItem<Siec6>(new Siec6("Main", "", "", "", "", "",""));
+            new TreeItem<Siec6>(new Siec6("Main", "", "", "", "", "","", ""));
     TreeView<Siec6> treeView;
 
     private List<Siec6> data;
@@ -32,24 +29,16 @@ public class TreeViewManager {
     public TreeViewManager(TreeView treeView) {
 
         final ContextMenu contextMenu = new ContextMenu();
-        contextMenu.setOnShowing(new EventHandler<WindowEvent>() {
-            public void handle(WindowEvent event) {
-                System.out.println("Showing");
-            }
-        });
-        contextMenu.setOnShown(new EventHandler<WindowEvent>() {
-            public void handle(WindowEvent event) {
-                System.out.println("Show");
-            }
-        });
+        contextMenu.setOnShowing(event -> System.out.println("Showing"));
+        contextMenu.setOnShown(event -> System.out.println("Show"));
 
         MenuItem item1 = new MenuItem("Add");
         item1.setOnAction(e -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
             if(siec != null){
-                new AddSiecDialog(siec.getValue(), this).show();
+                new AddSiecDialog(siec, this).show();
             }else
-                new AddSiecDialog(rootNode.getValue(), this).show();
+                new AddSiecDialog(rootNode, this).show();
         });
         MenuItem item2 = new MenuItem("Delete");
         item2.setOnAction(e -> {
@@ -201,7 +190,7 @@ public class TreeViewManager {
                 labelOpenInfo.setOnMouseClicked(event ->{
                     if(labelInfo.getText().isEmpty()){
                         labelInfo.setText("{client='"+item.getClient()+
-                                "', type='"+item.getType()+"', priority='" + item.getPriority()+"'}");
+                                "', type='"+item.getType()+"', priority='" + item.getPriority()+"', date='"+ item.getDate() +"'}");
                     }else
                         labelInfo.setText("");
                 });

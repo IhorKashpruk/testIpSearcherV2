@@ -154,14 +154,14 @@ public class SiecBox {
 
             String ipSiec = data.getAddress();
             SiecBox siec = new SiecBox(new Siec6(ipSiec, String.valueOf(generatedMask(divideNumbers.get(0))), String.valueOf(divideNumbers.get(0)),
-                    "", "", "", ""), this);
+                    "", "", "", "", ""), this);
             siec.mainBox.setPadding(new Insets(5,5,5,mainBox.getPadding().getLeft()+20));
             listSiecBox.add(siec);
             superMainBox.getChildren().add(siec.getMainBox());
             for(int j = 1; j < divideNumbers.size(); j++){
                 ipSiec = generatedIpSiec(ipSiec, divideNumbers.get(j-1));
                 SiecBox siecBox = new SiecBox(new Siec6(ipSiec, String.valueOf(generatedMask(divideNumbers.get(j)))
-                        , String.valueOf(divideNumbers.get(j)), "", "", "", ""), this);
+                        , String.valueOf(divideNumbers.get(j)), "", "", "", "", ""), this);
                 siecBox.mainBox.setPadding(new Insets(5, 5, 5, mainBox.getPadding().getLeft()+20));
                 listSiecBox.add(siecBox);
                 superMainBox.getChildren().add(siecBox.getMainBox());
@@ -175,8 +175,10 @@ public class SiecBox {
 
             if(suma < Integer.parseInt(data.getCountIp())){
                 int nIp = Integer.parseInt(data.getCountIp()) - suma;
-                residueSiecBox = new SiecBox(new Siec6(ipSiec, String.valueOf(generatedMask(nIp))
-                        , String.valueOf(nIp), "n", "", "", ""), this);
+                int mask = generatedMask(nIp);
+                String residueMask = mask == -1 ? "" : String.valueOf(mask);
+                residueSiecBox = new SiecBox(new Siec6(ipSiec, residueMask,
+                        String.valueOf(nIp), "n", "", "", "", ""), this);
                 residueSiecBox.mainBox.setStyle("-fx-border-color: gold; -fx-border-width: 3px;");
                 superMainBox.getChildren().add(residueSiecBox.getMainBox());
             }
@@ -199,15 +201,16 @@ public class SiecBox {
         return data;
     }
 
-    private int generatedMask(int mask){
-        int i = 0;
-        int divideCount2 = mask;
-        while(divideCount2 > 1){
-            divideCount2 /= 2;
-            i++;
+    private int generatedMask(int countIp){
+        int n = 0;
+        while(countIp > 1){
+            if((countIp % 2) > 0){
+                return -1;
+            }
+            countIp /= 2;
+            n++;
         }
-        return (32-i);
-
+        return (32 - n);
     }
 
     private String generatedIpSiec(String ip, int count){

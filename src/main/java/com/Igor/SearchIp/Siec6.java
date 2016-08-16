@@ -8,9 +8,9 @@ import com.sun.org.apache.xml.internal.security.algorithms.implementations.Integ
  */
 public class Siec6 extends SiecModel {
     private static final String columns_name[] = new String[]
-            {"address", "mask","countIp","status","priority", "client", "type"};
+            {"address", "mask","countIp","status","priority", "client", "type", "date"};
 
-    public Siec6(String address, String mask, String countIp, String status, String priority, String client, String type) {
+    public Siec6(String address, String mask, String countIp, String status, String priority, String client, String type, String date) {
         this.address = address;
         this.mask = mask;
         this.countIp = countIp;
@@ -18,9 +18,18 @@ public class Siec6 extends SiecModel {
         this.priority = priority;
         this.client = client;
         this.type = type;
+        this.date = date;
     }
 
     public Siec6() {
+    }
+
+    public String getDate() {
+        return date;
+    }
+
+    public void setDate(String date) {
+        this.date = date;
     }
 
     public String getAddress() {
@@ -93,6 +102,8 @@ public class Siec6 extends SiecModel {
     private String client;
     @CsvBind
     private String type;
+    @CsvBind
+    private String date;
 
     @Override
     public void setValue(String key, String value) {
@@ -117,6 +128,9 @@ public class Siec6 extends SiecModel {
         if(key.equals("type")){
             type= value;
         }
+        if(key.equals("date")){
+            date = value;
+        }
     }
 
     @Override
@@ -127,8 +141,39 @@ public class Siec6 extends SiecModel {
     public static String[] getCollumnsName(){return columns_name;}
 
     @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Siec6 siec6 = (Siec6) o;
+
+        if (address != null ? !address.equals(siec6.address) : siec6.address != null) return false;
+        if (mask != null ? !mask.equals(siec6.mask) : siec6.mask != null) return false;
+        if (countIp != null ? !countIp.equals(siec6.countIp) : siec6.countIp != null) return false;
+        if (status != null ? !status.equals(siec6.status) : siec6.status != null) return false;
+        if (priority != null ? !priority.equals(siec6.priority) : siec6.priority != null) return false;
+        if (client != null ? !client.equals(siec6.client) : siec6.client != null) return false;
+        if (type != null ? !type.equals(siec6.type) : siec6.type != null) return false;
+        return date != null ? date.equals(siec6.date) : siec6.date == null;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = address != null ? address.hashCode() : 0;
+        result = 31 * result + (mask != null ? mask.hashCode() : 0);
+        result = 31 * result + (countIp != null ? countIp.hashCode() : 0);
+        result = 31 * result + (status != null ? status.hashCode() : 0);
+        result = 31 * result + (priority != null ? priority.hashCode() : 0);
+        result = 31 * result + (client != null ? client.hashCode() : 0);
+        result = 31 * result + (type != null ? type.hashCode() : 0);
+        result = 31 * result + (date != null ? date.hashCode() : 0);
+        return result;
+    }
+
+    @Override
     public String toString() {
-        return "Siec{" +
+        return "Siec6{" +
                 "address='" + address + '\'' +
                 ", mask='" + mask + '\'' +
                 ", countIp='" + countIp + '\'' +
@@ -136,6 +181,7 @@ public class Siec6 extends SiecModel {
                 ", priority='" + priority + '\'' +
                 ", client='" + client + '\'' +
                 ", type='" + type + '\'' +
+                ", date='" + date + '\'' +
                 '}';
     }
 
@@ -162,38 +208,11 @@ public class Siec6 extends SiecModel {
         if(key.equals("type")){
             return type;
         }
+        if(key.equals("date")){
+            return date;
+        }
         return null;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Siec6 siec6 = (Siec6) o;
-
-        if (address != null ? !address.equals(siec6.address) : siec6.address != null) return false;
-        if (mask != null ? !mask.equals(siec6.mask) : siec6.mask != null) return false;
-        if (countIp != null ? !countIp.equals(siec6.countIp) : siec6.countIp != null) return false;
-        if (status != null ? !status.equals(siec6.status) : siec6.status != null) return false;
-        if (priority != null ? !priority.equals(siec6.priority) : siec6.priority != null) return false;
-        if (client != null ? !client.equals(siec6.client) : siec6.client != null) return false;
-        return type != null ? type.equals(siec6.type) : siec6.type == null;
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = address != null ? address.hashCode() : 0;
-        result = 31 * result + (mask != null ? mask.hashCode() : 0);
-        result = 31 * result + (countIp != null ? countIp.hashCode() : 0);
-        result = 31 * result + (status != null ? status.hashCode() : 0);
-        result = 31 * result + (priority != null ? priority.hashCode() : 0);
-        result = 31 * result + (client != null ? client.hashCode() : 0);
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        return result;
-    }
-
     public boolean thisIsParentNetwortk(Siec6 network){
         if(this.equals(network))
             return false;
@@ -212,7 +231,7 @@ public class Siec6 extends SiecModel {
     public int isBigger(Siec6 network){
         if(network == null)
             return 1;
-        if(this.mask == null || network.mask == null ){
+        if(this.mask == null || network.mask == null || this.mask.isEmpty() || network.mask.isEmpty()){
                 return Integer.parseInt(network.countIp) - Integer.parseInt(this.countIp);
         }
         int maskN1 = Integer.parseInt(this.mask);
@@ -249,6 +268,29 @@ public class Siec6 extends SiecModel {
         return false;
     }
 
+    public static int isBigger(Siec6 first, Siec6 second){
+        String[] strs = first.getAddress().split("\\.");
+        String[] strs2 = second.getAddress().split("\\.");
+
+        if(strs.length != 4 || strs2.length != 4)
+            return 0;
+
+        int[] args  = new int[4];
+        int[] args2 = new int[4];
+        for(int i = 0; i < 4; i++) {
+            args[i] = Integer.parseInt(strs[i]);
+            args2[i] = Integer.parseInt(strs2[i]);
+        }
+
+        for(int i = 0; i < 4; i++){
+            if(args[i] > args2[i])
+                return 1;
+            if(args[i] < args2[i])
+                return -1;
+        }
+        return -1;
+    }
+
     public static String generatedIpSiec(String ip, int count){
         String[] strs = ip.split("\\.");
 
@@ -268,7 +310,7 @@ public class Siec6 extends SiecModel {
                             args[0] = 0;
                         }else
                             args[0] += size;
-                        args[1]++;
+                        args[1] = 0;
                     }else
                         args[1] += size;
                     args[2] = 0;
@@ -286,6 +328,88 @@ public class Siec6 extends SiecModel {
         return String.valueOf(args[0]) + "." + String.valueOf(args[1]) + "." + String.valueOf(args[2]) + "." + String.valueOf(args[3]);
     }
 
+    public static String minusIp(String address, int count){
+        String[] strs = address.split("\\.");
 
+        if(strs.length != 4)
+            return null;
+
+        int[] args = new int[4];
+        for(int i = 0; i < 4; i++)
+            args[i] = Integer.parseInt(strs[i]);
+
+        while(count > 0){
+            int size = 1;
+            if(args[3] == 0){
+                if(args[2] == 0){
+                    if(args[1] == 0){
+                        if(args[0] == 0){
+                            args[0] = 255;
+                        }else
+                            args[0] -= size;
+                        args[1] = 255;
+                    }else
+                        args[1] -= size;
+                    args[2] = 255;
+                }else
+                    args[2] -= size;
+                args[3] = 255;
+            }else {
+                size = args[3];
+                size = count-size < 0 ? count : size;
+                args[3] -= size;
+            }
+            count -= size;
+        }
+
+        return String.valueOf(args[0]) + "." + String.valueOf(args[1]) + "." + String.valueOf(args[2]) + "." + String.valueOf(args[3]);
+    }
+
+    public static int minus(String firstAddress, String secondAddress){
+        if(firstAddress == null || secondAddress == null)
+            return -1;
+
+        String[] strs1 = firstAddress.split("\\.");
+        String[] strs2 = secondAddress.split("\\.");
+
+        if(strs1.length != 4 || strs2.length != 4)
+            return -1;
+
+        int[] args1 = new int[4];
+        int[] args2 = new int[4];
+        for(int i = 0; i < 4; i++) {
+            args1[i] = Integer.parseInt(strs1[i]);
+            args2[i] = Integer.parseInt(strs2[i]);
+        }
+
+
+
+        int returnCount = 0;
+        while(args1[0] != args2[0] ||
+                args1[1] != args2[1] ||
+                args1[2] != args2[2] ||
+                args1[3] != args2[3]){
+
+            if(args1[3] == 0){
+                if(args1[2] == 0){
+                    if(args1[1] == 0){
+                        if(args1[0] == 0){
+                            args1[0] = 255;
+                        }else
+                            args1[0]--;
+                        args1[1] = 255;
+                    }else
+                        args1[1]--;
+                    args1[2] = 255;
+                }else
+                    args1[2]--;
+                args1[3] = 255;
+            }else {
+                args1[3]--;
+            }
+            returnCount++;
+        }
+        return returnCount;
+    }
 
 }
