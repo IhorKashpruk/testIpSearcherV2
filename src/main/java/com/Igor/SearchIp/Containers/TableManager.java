@@ -9,6 +9,10 @@ import javafx.collections.ObservableList;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.layout.AnchorPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
+import javafx.scene.layout.VBox;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
 
@@ -17,7 +21,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.stream.Stream;
 
 /**
  * Created by igor on 04.08.16.
@@ -41,7 +44,13 @@ public class TableManager<T extends SiecModel> {
 
     public TableManager(TableView<T> table) {
         this.table = table;
-
+        this.table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        this.table.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+//        VBox.setVgrow(this.table, Priority.ALWAYS);
+        AnchorPane.setTopAnchor(this.table, 0.0);
+        AnchorPane.setBottomAnchor(this.table, 0.0);
+        AnchorPane.setLeftAnchor(this.table, 0.0);
+        AnchorPane.setRightAnchor(this.table, 0.0);
     }
 
     public void setData(Collection<? extends T> collection){
@@ -100,6 +109,7 @@ public class TableManager<T extends SiecModel> {
                                 else
                                 {
                                     btn.setMaxWidth(50);
+                                    btn.getItems().clear();
                                     btn.getItems().addAll(
                                             new ImageView(new Image("Icons/plus.png")),
                                             new ImageView(new Image("Icons/close_network.png")),
@@ -130,7 +140,6 @@ public class TableManager<T extends SiecModel> {
                                             Siec6 siec = (Siec6) getTableView().getItems().get(getIndex());
                                             siec.setStatus(newValue.intValue() == 0 ? "n" : newValue.intValue() == 1 ? "z" : "");
                                     });
-
                                     btn.getSelectionModel().select(1);
                                     setGraphic( btn );
                                     setText( null );
@@ -157,6 +166,7 @@ public class TableManager<T extends SiecModel> {
                             setText(null);
                             setStyle("");
                         } else {
+                            btn.getItems().clear();
                             btn.getItems().addAll("1", "2", "3", "4", "5");
                             btn.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
                                 Siec6 siec = (Siec6) getTableView().getItems().get(getIndex());
@@ -211,6 +221,7 @@ public class TableManager<T extends SiecModel> {
                                 siec.setDate(newValue.toString());
                             });
                             datePicker.setValue(LocalDate.now());
+                            getTableView().getItems().get(getIndex()).setValue("date", LocalDate.now().toString());
                             setGraphic(datePicker);
                             setText(null);
                         }

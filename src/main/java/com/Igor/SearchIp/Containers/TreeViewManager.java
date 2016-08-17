@@ -17,7 +17,7 @@ import java.util.Optional;
 
 public class TreeViewManager {
     private TreeItem<Siec6> rootNode =
-            new TreeItem<Siec6>(new Siec6("Main", "", "", "", "", "","", ""));
+            new TreeItem<>(new Siec6("Main", "", "", "", "", "", "", ""));
     TreeView<Siec6> treeView;
 
     private List<Siec6> data;
@@ -43,6 +43,7 @@ public class TreeViewManager {
         MenuItem item2 = new MenuItem("Delete");
         item2.setOnAction(e -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
+            TreeItem<Siec6> parrentSiec = siec.getParent();
             if(siec != null){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Information");

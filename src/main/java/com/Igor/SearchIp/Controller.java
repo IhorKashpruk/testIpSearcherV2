@@ -48,13 +48,13 @@ import static javafx.scene.control.SelectionMode.MULTIPLE;
  */
 public class Controller {
     private CSVManager manager;
-    private TableManager<Siec6> tableManager;
     private Diagram diagram;
     private SiecBox siecBox;
 
+    private  TreeViewManager treeViewManager;
 
-    TreeViewManager treeViewManager;
-
+    @FXML
+    private AnchorPane secondAnchornPane;
     @FXML
     private AnchorPane scrollPaneAnchorn;
     @FXML
@@ -278,6 +278,8 @@ public class Controller {
                 siec.setStatus("z");
         }
 
+        System.out.println(siec6List);
+
         TableView<Siec6> siec6TableView = new TableView<>();
         siec6TableView.setEditable(true);
         TableManager<Siec6> table = new TableManager<>(siec6TableView);
@@ -302,14 +304,14 @@ public class Controller {
             table.getTable().getColumns().get(i).setEditable(false);
         }
 
-//        MainBoxDivide.getChildren().add(table.getTable());
         scrollPaneAnchorn.getChildren().clear();
-        scrollPaneAnchorn.getChildren().setAll(table.getTable());
+        scrollPaneAnchorn.getChildren().add(table.getTable());
+
         ApplayButton.setOnAction(event -> {
             for(int j = 0; j < table.getData().size(); j++){
-                if(table.getData().get(j).getPriority().isEmpty() ||
-                        table.getData().get(j).getClient().isEmpty() ||
-                        table.getData().get(j).getType().isEmpty()){
+                if(table.getData().get(j).getPriority() == null || table.getData().get(j).getPriority().isEmpty() ||
+                        table.getData().get(j).getClient() == null || table.getData().get(j).getClient().isEmpty() ||
+                        table.getData().get(j).getType() == null || table.getData().get(j).getType().isEmpty()){
 
                     Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                     alert.setTitle("Information");
@@ -328,30 +330,33 @@ public class Controller {
             }
 
             int index = treeViewManager.getData().indexOf(siecBox.getData());
-            treeViewManager.getData().get(index).setStatus(null);
-            treeViewManager.getData().get(index).setPriority(null);
-            treeViewManager.getData().get(index).setClient(null);
-            treeViewManager.getData().get(index).setType(null);
-            treeViewManager.getData().addAll(table.getData());
-            treeViewManager.upload();
+
+            if(table.getData().size() == 1){
+                if(table.getData().get(0).getAddress().equals(siecBox.getData().getAddress()) &&
+                        table.getData().get(0).getCountIp().equals(siecBox.getData().getCountIp())){
+                    treeViewManager.getData().remove(index);
+                }
+            }else {
+                treeViewManager.getData().get(index).setStatus("");
+                treeViewManager.getData().get(index).setPriority("");
+                treeViewManager.getData().get(index).setClient("");
+                treeViewManager.getData().get(index).setType("");
+            }
+                treeViewManager.getData().addAll(table.getData());
+                treeViewManager.upload();
 
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
             alert.setTitle("Information");
             alert.setContentText("New networks was added!");
             alert.showAndWait();
             addSiecToListToDivide();
+            table.getTable().setDisable(true);
+            ApplayButton.setDisable(true);
         });
 
     }
 
     public void clickButton(ActionEvent actionEvent) {
-        scrollPaneAnchorn.getChildren().clear();
-        ApplayButton.setDisable(true);
-        nextDivideButton.setDisable(false);
-        if(siecBox != null){
-            siecBox.clear();
-            MainBoxDivide.getChildren().clear();
-        }
         Siec6 siec = ListSiecToDivide.getSelectionModel().getSelectedItem();
         if(siec == null){
             Alert alert = new Alert(Alert.AlertType.INFORMATION);
@@ -359,6 +364,13 @@ public class Controller {
             alert.setContentText("Choose item!");
             alert.showAndWait();
             return;
+        }
+        scrollPaneAnchorn.getChildren().clear();
+        ApplayButton.setDisable(true);
+        nextDivideButton.setDisable(false);
+        if(siecBox != null){
+            siecBox.clear();
+            MainBoxDivide.getChildren().clear();
         }
         VBox.setVgrow(MainBoxDivide, Priority.ALWAYS);
         siecBox = new SiecBox(siec, null);
@@ -368,7 +380,7 @@ public class Controller {
         treeViewManager.selectItem(treeViewManager.getRootNode(), siec);
     }
 
-    public void aboutProgram(ActionEvent actionEvent) {
+    public void aboutProgram() {
         final Stage dialog = new Stage();
         dialog.initModality(Modality.APPLICATION_MODAL);
         dialog.initOwner(null);

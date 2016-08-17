@@ -135,7 +135,7 @@ public class Siec6 extends SiecModel {
 
     @Override
     public String[] getColumnsValue() {
-        return new String[]{address, mask, countIp, status, priority, client, type};
+        return new String[]{address, mask, countIp, status, priority, client, type, date};
     }
 
     public static String[] getCollumnsName(){return columns_name;}
