@@ -167,6 +167,13 @@ public class Controller {
         File selectedFile = fileChooser.showSaveDialog(null);
         if(selectedFile != null) {
             try {
+                if(manager == null){
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Information");
+                    alert.setHeaderText("You have nothing to save!");
+                    alert.showAndWait();
+                    return;
+                }
                 manager.writeData(treeViewManager.getData(), selectedFile.getPath());
             } catch (IOException e) {
                 e.printStackTrace();

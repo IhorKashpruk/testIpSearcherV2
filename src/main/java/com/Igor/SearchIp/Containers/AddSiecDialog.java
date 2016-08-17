@@ -16,8 +16,6 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import javafx.util.Callback;
-import sun.reflect.generics.tree.SimpleClassTypeSignature;
-import sun.reflect.generics.tree.Tree;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -40,6 +38,7 @@ public class AddSiecDialog {
     private ImageView imageView;
     private Label labelLog;
     private List<Siec6> siec6List;
+    private Label labelIconLog;
 
 
     public AddSiecDialog(TreeItem<Siec6> item, TreeViewManager manager) {
@@ -169,7 +168,7 @@ public class AddSiecDialog {
 
         HBox logBox = new HBox(8);
         imageView = new ImageView();
-        Label labelIconLog = new Label("", imageView);
+        labelIconLog = new Label("", imageView);
         labelLog = new Label();
 
         logBox.getChildren().addAll(labelIconLog, labelLog);
@@ -330,11 +329,13 @@ public class AddSiecDialog {
         String error_style = "-fx-border-color: lightcoral;-fx-border-width: 2px;";
         if(labelIp.getText().isEmpty()){
             labelIp.setStyle(error_style);
+            labelIconLog.setGraphic(new ImageView(new Image("Icons/error.png")));
             labelLog.setText("Ip is empty!");
             return false;
         }
         if(labelCountIp.getText().isEmpty()){
             labelCountIp.setStyle(error_style);
+            labelIconLog.setGraphic(new ImageView(new Image("Icons/error.png")));
             labelLog.setText("Count ip is empty!");
             return false;
         }
@@ -363,6 +364,7 @@ public class AddSiecDialog {
             }else
             {
                 labelIp.setStyle(error_style);
+                labelIconLog.setGraphic(new ImageView(new Image("Icons/error.png")));
                 labelLog.setText("You haven't enough ip address!!");
                 return false;
             }
@@ -370,6 +372,7 @@ public class AddSiecDialog {
             labelIp.setStyle(error_style);
             return false;
         }
+        labelIconLog.setGraphic(new ImageView(new Image("Icons/success.png")));
         labelCountIp.setStyle("");
         labelMask.setStyle("");
         return true;

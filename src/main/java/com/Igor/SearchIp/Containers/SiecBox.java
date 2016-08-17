@@ -1,6 +1,7 @@
 package com.Igor.SearchIp.Containers;
 
 import com.Igor.SearchIp.Siec6;
+import com.sun.org.apache.xerces.internal.impl.xpath.regex.Match;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
 import javafx.geometry.Pos;
@@ -73,6 +74,24 @@ public class SiecBox {
             if (!newValue.matches("\\d*")) {
                 divideTextBox.setText(newValue.replaceAll("[^\\d]", ""));
             }
+        });
+        divideTextBox.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            int number;
+            try {
+                number = Integer.parseInt(divideTextBox.getText());
+            }catch (NumberFormatException ex){
+                return;
+            }
+            boolean isGood = true; int n = 0;
+            while(number > 1){
+                if(number % 2 > 0){
+                    isGood = false;
+                }
+                number /= 2;
+                n++;
+            }
+            if(!isGood)
+                divideTextBox.setText(String.valueOf((int)Math.pow(2, n+1)));
         });
 
         Image image = new Image("Icons/divideOn.png");
