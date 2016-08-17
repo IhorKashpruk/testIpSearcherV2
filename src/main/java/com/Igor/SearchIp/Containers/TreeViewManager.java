@@ -1,11 +1,14 @@
 package com.Igor.SearchIp.Containers;
 
 import com.Igor.SearchIp.Siec6;
+import javafx.geometry.NodeOrientation;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import sun.reflect.generics.tree.Tree;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -32,18 +35,39 @@ public class TreeViewManager {
         contextMenu.setOnShowing(event -> System.out.println("Showing"));
         contextMenu.setOnShown(event -> System.out.println("Show"));
 
-        MenuItem item1 = new MenuItem("Add");
-        item1.setOnAction(e -> {
+        Menu addItem = new Menu("Add");
+        MenuItem addHomeSiec = new MenuItem("Home network", new ImageView(new Image("Icons/network.png")));
+        MenuItem addFreeSiec = new MenuItem("Free network", new ImageView(new Image("Icons/open_network.png")));
+        MenuItem addBusySiec = new MenuItem("Busy network", new ImageView(new Image("Icons/close_network.png")));
+
+        addItem.getItems().addAll(addHomeSiec, addFreeSiec, addBusySiec);
+
+
+        addHomeSiec.setOnAction(event -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
             if(siec != null){
-                new AddSiecDialog(siec, this).show();
+                new AddSiecDialog(siec, this, AddSiecDialog.NETWORK_TYPE.HOME_NETWORK).show();
             }else
-                new AddSiecDialog(rootNode, this).show();
+                new AddSiecDialog(rootNode, this, AddSiecDialog.NETWORK_TYPE.HOME_NETWORK).show();
         });
+        addFreeSiec.setOnAction(event -> {
+            TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
+            if(siec != null){
+                new AddSiecDialog(siec, this, AddSiecDialog.NETWORK_TYPE.FREE_NETWORK).show();
+            }else
+                new AddSiecDialog(rootNode, this, AddSiecDialog.NETWORK_TYPE.FREE_NETWORK).show();
+        });
+        addBusySiec.setOnAction(event -> {
+            TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
+            if(siec != null){
+                new AddSiecDialog(siec, this, AddSiecDialog.NETWORK_TYPE.BUSY_NETWORK).show();
+            }else
+                new AddSiecDialog(rootNode, this, AddSiecDialog.NETWORK_TYPE.BUSY_NETWORK).show();
+        });
+
         MenuItem item2 = new MenuItem("Delete");
         item2.setOnAction(e -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
-            TreeItem<Siec6> parrentSiec = siec.getParent();
             if(siec != null){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Information");
@@ -58,7 +82,7 @@ public class TreeViewManager {
                 }
             }
         });
-        contextMenu.getItems().addAll(item1, item2);
+        contextMenu.getItems().addAll(addItem, item2);
 
         rootNode.setExpanded(true);
         this.treeView = treeView;
@@ -154,6 +178,50 @@ public class TreeViewManager {
         data.remove(start.getValue());
     }
 
+    public static void getFreeSiecs(TreeItem<Siec6> treeItem, List list){
+        for (int i = 0; i < treeItem.getChildren().size(); i++) {
+            getFreeSiecs(treeItem.getChildren().get(i), list);
+        }
+
+        if(treeItem.getChildren().size() == 0 && (treeItem.getValue().getStatus() == null || treeItem.getValue().getStatus().isEmpty())) {
+            list.add(new Siec6(treeItem.getValue().getAddress(), treeItem.getValue().getMask(), treeItem.getValue().getCountIp(),
+                    "", "", "", "", ""));
+        }else {
+            List<Siec6> siec6s = new ArrayList<>();
+            for(int i = 0; i < treeItem.getChildren().size(); i++){
+                siec6s.add(treeItem.getChildren().get(i).getValue());
+            }
+
+            Collections.sort(siec6s, (o1, o2) -> Siec6.isBigger(o1,o2));
+
+            for (int i = 0; i < siec6s.size(); i++) {
+                Siec6 siec = siec6s.get(i);
+                Siec6 siec2;
+
+                if (i == 0) {
+                    if (!treeItem.getValue().getAddress().equals(siec.getAddress())) {
+                        list.add(new Siec6(treeItem.getValue().getAddress(), "",
+                                String.valueOf(Siec6.minus(siec.getAddress(), treeItem.getValue().getAddress()))));
+                    }
+                }
+                if (i == siec6s.size() - 1) {
+                    siec2 = new Siec6(Siec6.generatedIpSiec(treeItem.getValue().getAddress(),
+                            Integer.parseInt(treeItem.getValue().getCountIp())), "", "", "", "", "", "", "");
+                    if (Siec6.generatedIpSiec(siec.getAddress(), Integer.parseInt(siec.getCountIp())).equals(
+                            Siec6.generatedIpSiec(treeItem.getValue().getAddress(), Integer.parseInt(treeItem.getValue().getCountIp()))))
+                        break;
+                } else
+                    siec2 = siec6s.get(i+1);
+
+                if (Siec6.generatedIpSiec(siec.getAddress(), Integer.parseInt(siec.getCountIp())).equals(siec2.getAddress())) {
+                    continue;
+                }
+                String addr1 = Siec6.generatedIpSiec(siec.getAddress(), Integer.parseInt(siec.getCountIp()));
+                list.add(new Siec6(addr1, "",
+                        String.valueOf(Siec6.minus(siec2.getAddress(), addr1)), "", "", "", "", ""));
+            }
+        }
+    }
 
     public TreeItem<Siec6> getRootNode() {
         return rootNode;
@@ -178,7 +246,7 @@ public class TreeViewManager {
                 String url;
                 if(item.getStatus() == null || item.getStatus().isEmpty()){
                     url = "Icons/network.png";
-//                    labelAddMasCount.setStyle("-fx-background-color: #F7FFFE;");
+                    cellBox.setStyle("-fx-border-color: darkgrey;");
                 }else
                 if(item.getStatus().equals("n")) {
 //                    labelAddMasCount.setStyle("-fx-background-color: #CEFFCE;");
@@ -195,8 +263,18 @@ public class TreeViewManager {
                     }else
                         labelInfo.setText("");
                 });
-                 cellBox.getChildren().addAll(icon, labelAddMasCount, labelOpenInfo, labelInfo);
-
+                List<Siec6> list = new ArrayList<>();
+                TreeViewManager.getFreeSiecs(getTreeItem(), list);
+                int n = 0;
+                for(Siec6 siec : list){
+                    n += Integer.parseInt(siec.getCountIp());
+                }
+                Label countFreeIp = new Label(String.valueOf(n));
+                if(n > 0)
+                    countFreeIp.setStyle("-fx-background-color: chartreuse;");
+                else
+                    countFreeIp.setStyle("-fx-background-color: lightcoral;");
+                 cellBox.getChildren().addAll(icon, labelAddMasCount, countFreeIp, labelOpenInfo, labelInfo);
                 // We set the cellBox as the graphic of the cell.
                 setGraphic(cellBox);
                 setText(null);

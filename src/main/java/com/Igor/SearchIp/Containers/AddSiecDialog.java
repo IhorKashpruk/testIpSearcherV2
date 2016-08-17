@@ -1,5 +1,6 @@
 package com.Igor.SearchIp.Containers;
 
+import com.Igor.SearchIp.MyMath;
 import com.Igor.SearchIp.Siec6;
 import javafx.geometry.Insets;
 import javafx.geometry.Orientation;
@@ -15,7 +16,6 @@ import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
-import javafx.util.Callback;
 
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -25,7 +25,14 @@ import java.util.regex.Pattern;
 /**
  * Created by Игорь on 12.08.2016.
  */
-public class AddSiecDialog {
+class AddSiecDialog {
+
+    enum NETWORK_TYPE {
+        HOME_NETWORK,
+        FREE_NETWORK,
+        BUSY_NETWORK
+    }
+
     private final Stage dialog;
     private TreeItem<Siec6> item;
     private TreeViewManager manager;
@@ -39,9 +46,10 @@ public class AddSiecDialog {
     private Label labelLog;
     private List<Siec6> siec6List;
     private Label labelIconLog;
+    private NETWORK_TYPE networkType;
 
-
-    public AddSiecDialog(TreeItem<Siec6> item, TreeViewManager manager) {
+    AddSiecDialog(TreeItem<Siec6> item, TreeViewManager manager, NETWORK_TYPE type) {
+        networkType = type;
         siec6List = new ArrayList<>();
         this.manager = manager;
         this.item = item;
@@ -51,7 +59,11 @@ public class AddSiecDialog {
 
         createElement();
 
-        Scene dialogScene = new Scene(mainBox, 800, 170);
+        Scene dialogScene = new Scene(mainBox, 720, 170);
+        String iconPath = networkType == NETWORK_TYPE.HOME_NETWORK ?
+                "Icons/network.png" : networkType == NETWORK_TYPE.BUSY_NETWORK ?
+                "Icons/close_network.png" : "Icons/open_network.png";
+        dialog.getIcons().add(new Image(iconPath));
         dialog.setScene(dialogScene);
         dialog.setResizable(false);
         dialog.setTitle("Add network");
@@ -63,23 +75,28 @@ public class AddSiecDialog {
         topBox.setAlignment(Pos.CENTER);
         mainBox = new HBox();
 
-        ScrollPane leftMainBox = new ScrollPane();
-        leftMainBox.setStyle("-fx-background: white;");
-        leftMainBox.setMinWidth(200);
-        VBox boxInScrollPane = new VBox();
-        VBox.setVgrow(boxInScrollPane, Priority.ALWAYS);
-        leftMainBox.setContent(boxInScrollPane);
+        ListView<String> leftSiecs = new ListView<>();
+        leftSiecs.setStyle("-fx-background: white;");
+        leftSiecs.setMinWidth(200);
+        VBox leftMainBox = new VBox();
+        VBox.setVgrow(leftMainBox, Priority.ALWAYS);
 
         // додаю вільні місця
         Label textFreeAddres = new Label("Available address:");
         textFreeAddres.setFont(new Font("System", 14));
-        boxInScrollPane.getChildren().addAll(textFreeAddres, new Separator(Orientation.HORIZONTAL));
+        leftMainBox.getChildren().addAll(textFreeAddres, leftSiecs);
 
-        createLeftPanel(item, boxInScrollPane);
+        manager.getFreeSiecs(item, siec6List);
 
-        for(int i = 2; i < boxInScrollPane.getChildren().size(); i++){
-            ((Label)boxInScrollPane.getChildren().get(i)).setFont(new Font("System", 14));
+        for(int i = 0; i < siec6List.size(); i++){
+            Siec6 siec6 = siec6List.get(i);
+            leftSiecs.getItems().add(siec6.getAddress() + " - " + Siec6.generatedIpSiec(siec6.getAddress(), Integer.parseInt(siec6.getCountIp())));
         }
+
+
+        leftSiecs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            labelIp.setText(newValue.substring(0, newValue.indexOf(' ')));
+        });
 
         mainBox.setStyle("-fx-background-color: white;");
         HBox.setHgrow(mainBox, Priority.ALWAYS);
@@ -114,36 +131,7 @@ public class AddSiecDialog {
         labelMask.setPromptText("Mask..."); labelMask.setMinWidth(50);
         labelCountIp = new TextField();
         labelCountIp.setPromptText("Count ip..."); labelCountIp.setMinWidth(60);
-        ComboBox<ImageView> labelStatus = new ComboBox<>();
-        labelStatus.setMaxWidth(50);
-        labelStatus.getItems().addAll(
-                new ImageView(new Image("Icons/plus.png")),
-                new ImageView(new Image("Icons/close_network.png")),
-                new ImageView(new Image("Icons/network.png"))
-        );
-        labelStatus.setCellFactory(new Callback<ListView<ImageView>, ListCell<ImageView>>() {
-            @Override public ListCell<ImageView> call(ListView<ImageView> p) {
-                return new ListCell<ImageView>() {
-                    private final ImageView rectangle;
-                    {
-                        setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                        rectangle = new ImageView();
-                    }
-                    @Override protected void updateItem(ImageView item, boolean empty) {
-                        super.updateItem(item, empty);
 
-                        if (item == null || empty) {
-                            setGraphic(null);
-                        } else {
-                            rectangle.setImage(item.getImage());
-                            setGraphic(rectangle);
-                        }
-                    }
-                };
-            }
-        });
-        labelStatus.setMinWidth(50);
-        labelStatus.getSelectionModel().select(0);
         ComboBox<String> labelPriority = new ComboBox();
         labelPriority.setMinWidth(50);
         labelPriority.getItems().addAll("1", "2", "3", "4", "5");
@@ -164,11 +152,12 @@ public class AddSiecDialog {
                 centerBox.getChildren().remove(secreetBox);
         });
 
-        centerBox.getChildren().addAll(labelIp, labelMask, labelCountIp, labelStatus, labelPriority, labelOpenInfo);
+        centerBox.getChildren().addAll(labelIp, labelMask, labelCountIp, labelPriority, labelOpenInfo);
 
-        HBox logBox = new HBox(8);
+        HBox logBox = new HBox(10);
         imageView = new ImageView();
         labelIconLog = new Label("", imageView);
+        labelIconLog.setPadding(new Insets(0,5,0,10));
         labelLog = new Label();
 
         logBox.getChildren().addAll(labelIconLog, labelLog);
@@ -179,9 +168,7 @@ public class AddSiecDialog {
         Button buttonOk = new Button("Ok");
         Button buttonCancel = new Button("Cancel");
 
-        buttonCancel.setOnAction(event -> {
-            dialog.close();
-        });
+        buttonCancel.setOnAction(event -> dialog.close());
 
 
         bottonBox.getChildren().addAll(buttonCancel, buttonOk);
@@ -221,21 +208,18 @@ public class AddSiecDialog {
             if(str.isEmpty() || str.length() > 9 || str.equals("1") || str.equals("0"))
                 return;
             int localCountIp = Integer.parseInt(str);
-            int n = 0;
-            boolean isGoodDivide = true;
-            while(localCountIp > 1){
-                if((localCountIp % 2) > 0){
-                    isGoodDivide = false;
-                    break;
+
+            int countDivided2 = MyMath.countDividedBy(localCountIp, 2);
+            if(MyMath.isDivideBy2Entirely(localCountIp)){
+                labelMask.setText(String.valueOf(32 - countDivided2));
+            }else {
+                switch (networkType){
+                    case HOME_NETWORK:
+                        break;
+                    default:
+                        labelCountIp.setText(String.valueOf((int)Math.pow(2, countDivided2+1)));
+                        labelMask.setText(String.valueOf(32 - countDivided2-1));
                 }
-                localCountIp /= 2;
-                n++;
-            }
-            if(isGoodDivide)
-                labelMask.setText(String.valueOf(32-n));
-            else {
-                labelMask.setText("");
-                labelStatus.getSelectionModel().select(2);
             }
             isGood();
         });
@@ -256,8 +240,7 @@ public class AddSiecDialog {
             }
 
             // Після перевірок
-            int selectIndexStatus = labelStatus.getSelectionModel().getSelectedIndex();
-            String networkId =  selectIndexStatus == 0 ? "n" : selectIndexStatus == 1 ? "z" : "";
+            String networkId =  networkType == NETWORK_TYPE.FREE_NETWORK ? "n" : networkType == NETWORK_TYPE.BUSY_NETWORK ? "z" : "";
             Siec6 siec6 = new Siec6(labelIp.getText(), labelMask.getText(), labelCountIp.getText(),
                    networkId, labelPriority.getSelectionModel().getSelectedItem(), labelClient.getText(), labelType.getText(), new SimpleDateFormat("yyyy-MM-dd").format(new Date()));
             manager.getData().add(siec6);
@@ -274,69 +257,14 @@ public class AddSiecDialog {
         mainBox.getChildren().addAll(leftMainBox, ridthMainBox);
     }
 
-    private void createLeftPanel(TreeItem<Siec6> treeItem, VBox box){
-        for (int i = 0; i < treeItem.getChildren().size(); i++) {
-            createLeftPanel(treeItem.getChildren().get(i), box);
-        }
-
-        if(treeItem.getChildren().size() == 0 && (treeItem.getValue().getStatus() == null || treeItem.getValue().getStatus().isEmpty())) {
-            siec6List.add(new Siec6(treeItem.getValue().getAddress(), treeItem.getValue().getMask(), treeItem.getValue().getCountIp(),
-                    "", "", "", "", ""));
-            box.getChildren().add(new Label(treeItem.getValue().getAddress() + " - " +
-                    Siec6.generatedIpSiec(treeItem.getValue().getAddress(), Integer.parseInt(treeItem.getValue().getCountIp()))));
-        }else {
-            List<Siec6> siec6s = new ArrayList<>();
-            for(int i = 0; i < treeItem.getChildren().size(); i++){
-                siec6s.add(treeItem.getChildren().get(i).getValue());
-            }
-
-            Collections.sort(siec6s, (o1, o2) -> Siec6.isBigger(o1,o2));
-
-            for (int i = 0; i < siec6s.size(); i++) {
-                Siec6 siec = siec6s.get(i);
-                Siec6 siec2;
-
-                if (i == 0) {
-                    if (!treeItem.getValue().getAddress().equals(siec.getAddress())) {
-                        siec6List.add(new Siec6(treeItem.getValue().getAddress(), "",
-                                String.valueOf(Siec6.minus(siec.getAddress(), treeItem.getValue().getAddress())),
-                                "", "", "", "", ""));
-                        box.getChildren().add(new Label(treeItem.getValue().getAddress() + " - " + siec.getAddress()));
-                    }
-                }
-                if (i == siec6s.size() - 1) {
-                    siec2 = new Siec6(Siec6.generatedIpSiec(treeItem.getValue().getAddress(),
-                            Integer.parseInt(treeItem.getValue().getCountIp())), "", "", "", "", "", "", "");
-                    if (Siec6.generatedIpSiec(siec.getAddress(), Integer.parseInt(siec.getCountIp())).equals(
-                            Siec6.generatedIpSiec(treeItem.getValue().getAddress(), Integer.parseInt(treeItem.getValue().getCountIp()))))
-                        break;
-                } else
-                    siec2 = siec6s.get(i+1);
-
-                if (Siec6.generatedIpSiec(siec.getAddress(), Integer.parseInt(siec.getCountIp())).equals(siec2.getAddress())) {
-                    continue;
-                }
-                String addr1 = Siec6.generatedIpSiec(siec.getAddress(), Integer.parseInt(siec.getCountIp()));
-                box.getChildren().add(new Label(Siec6.generatedIpSiec(siec.getAddress(), Integer.parseInt(siec.getCountIp())) + " - " +
-                        siec2.getAddress()));
-                siec6List.add(new Siec6(addr1, "",
-                        String.valueOf(Siec6.minus(siec2.getAddress(), addr1)), "", "", "", "", ""));
-            }
-        }
-    }
-
     private boolean isGood(){
-        String error_style = "-fx-border-color: lightcoral;-fx-border-width: 2px;";
+
         if(labelIp.getText().isEmpty()){
-            labelIp.setStyle(error_style);
-            labelIconLog.setGraphic(new ImageView(new Image("Icons/error.png")));
-            labelLog.setText("Ip is empty!");
+            showError("Ip is empty!", labelIp);
             return false;
         }
         if(labelCountIp.getText().isEmpty()){
-            labelCountIp.setStyle(error_style);
-            labelIconLog.setGraphic(new ImageView(new Image("Icons/error.png")));
-            labelLog.setText("Count ip is empty!");
+           showError("Count ip is empty!", labelCountIp);
             return false;
         }
 
@@ -348,37 +276,47 @@ public class AddSiecDialog {
         Pattern pattern = Pattern.compile(IPADDRESS_PATTERN);
         Matcher matcher = pattern.matcher(labelIp.getText());
 
-        if(matcher.find()){
-            String ipAddress = matcher.group();
 
+        if (matcher.find()) {
+            String ipAddress = matcher.group();
             Siec6 siec6 = new Siec6(ipAddress, labelMask.getText(), labelCountIp.getText(), "", "", "", "", "");
             boolean isInto = false;
-            for (Siec6 siec : siec6List){
-                if(siec6.thisIsParentNetwortk(siec)){
+            for (Siec6 siec : siec6List) {
+                if (siec6.thisIsParentNetwortk(siec)) {
                     isInto = true;
                     break;
                 }
             }
-            if(isInto){
-                labelIp.setStyle("");
-            }else
-            {
-                labelIp.setStyle(error_style);
-                labelIconLog.setGraphic(new ImageView(new Image("Icons/error.png")));
-                labelLog.setText("You haven't enough ip address!!");
+            if (!isInto) {
+               showError("You haven't enough ip address!!", labelIp);
                 return false;
             }
-        }else {
-            labelIp.setStyle(error_style);
+        } else {
+            showError("You haven't enough ip address!!", labelIp);
             return false;
         }
-        labelIconLog.setGraphic(new ImageView(new Image("Icons/success.png")));
-        labelCountIp.setStyle("");
-        labelMask.setStyle("");
+
+       showSuccess();
         return true;
     }
 
     public void show(){
         dialog.show();
     }
+
+    private void showError(String message, TextField textField){
+        String error_style = "-fx-border-color: lightcoral;-fx-border-width: 2px;";
+        if(textField != null)
+            textField.setStyle(error_style);
+        labelIconLog.setGraphic(new ImageView(new Image("Icons/error.png")));
+
+        labelLog.setText(message);
+    }
+    private void showSuccess(){
+        labelIconLog.setGraphic(new ImageView(new Image("Icons/success.png")));
+        labelCountIp.setStyle("");
+        labelIp.setStyle("");
+        labelMask.setStyle("");
+    }
+
 }

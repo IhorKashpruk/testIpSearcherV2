@@ -19,6 +19,12 @@ public class Siec6 extends SiecModel {
         this.date = date;
     }
 
+    public Siec6(String address, String mask, String countIp) {
+        this.address = address;
+        this.mask = mask;
+        this.countIp = countIp;
+    }
+
     public Siec6() {
     }
 
