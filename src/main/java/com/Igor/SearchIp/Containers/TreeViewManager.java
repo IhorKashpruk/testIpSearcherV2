@@ -5,6 +5,7 @@ import com.Igor.SearchIp.Siec6;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Orientation;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -44,6 +45,10 @@ public class TreeViewManager {
         newItem.getItems().addAll(addHomeSiec, addFreeSiec, addBusySiec);
         contextMenu.setOnShowing(observable -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
+            if(siec == rootNode){
+                new MyLittleAlert(Alert.AlertType.INFORMATION, "Information", "This is main node", "").showAndWait();
+                return;
+            }
             if(siec != null){
                 if(siec.getValue().getStatus() != null &&
                         !siec.getValue().getStatus().equals("")){
@@ -78,6 +83,10 @@ public class TreeViewManager {
         MenuItem margeIntoOne = new MenuItem("Marge...");
         margeIntoOne.setOnAction(event -> {
             ObservableList<TreeItem<Siec6>> observableList = getTreeView().getSelectionModel().getSelectedItems();
+            if(observableList.size() == 0){
+                new MyLittleAlert(Alert.AlertType.INFORMATION, "Information", "Select item!", "").showAndWait();
+                return;
+            }
             if(observableList.size() == 1){
                 new MyLittleAlert(Alert.AlertType.WARNING, "Waring", "You can not marge 1 network", "").showAndWait();
                 return;
@@ -342,11 +351,14 @@ public class TreeViewManager {
                         n += Integer.parseInt(siec.getCountIp());
                     }
                     Label countFreeIp = new Label(String.valueOf(n));
+                    countFreeIp.setAlignment(Pos.CENTER);
                     countFreeIp.setFont(new Font("System", 14));
                     if (n > 0)
-                        countFreeIp.setStyle("-fx-background-color: greenyellow; -fx-background-radius: 5em;");
+//                        countFreeIp.setStyle("-fx-background-color: greenyellow; -fx-background-radius: 5em;");
+                        countFreeIp.setStyle("-fx-background-color: greenyellow; ");
                     else
-                        countFreeIp.setStyle("-fx-background-color: tomato; -fx-background-radius: 5em;");
+//                        countFreeIp.setStyle("-fx-background-color: tomato; -fx-background-radius: 5em;");
+                        countFreeIp.setStyle("-fx-background-color: tomato; ");
                     cellBox.getChildren().add(countFreeIp);
                 }
                  cellBox.getChildren().addAll(labelOpenInfo, labelInfo);

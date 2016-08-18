@@ -218,7 +218,6 @@ public class Siec6 extends SiecModel {
         return null;
     }
     public boolean thisIsParentNetwortk(Siec6 network){
-        System.out.println("this = " + this + ", net = " + network);
         if(this.equals(network))
             return false;
 
