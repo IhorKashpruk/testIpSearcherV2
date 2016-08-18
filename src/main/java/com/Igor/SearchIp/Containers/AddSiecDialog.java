@@ -37,12 +37,9 @@ class AddSiecDialog {
     private TreeItem<Siec6> item;
     private TreeViewManager manager;
     private HBox mainBox;
-    private VBox ridthMainBox;
-    private Label labelCountIpTitle;
     private TextField labelIp;
     private TextField labelMask;
     private TextField labelCountIp;
-    private ImageView imageView;
     private Label labelLog;
     private List<Siec6> siec6List;
     private Label labelIconLog;
@@ -86,21 +83,19 @@ class AddSiecDialog {
         textFreeAddres.setFont(new Font("System", 14));
         leftMainBox.getChildren().addAll(textFreeAddres, leftSiecs);
 
-        manager.getFreeSiecs(item, siec6List);
+        TreeViewManager.getFreeSiecs(item, siec6List);
 
-        for(int i = 0; i < siec6List.size(); i++){
-            Siec6 siec6 = siec6List.get(i);
+        for (Siec6 siec6 : siec6List) {
             leftSiecs.getItems().add(siec6.getAddress() + " - " + Siec6.generatedIpSiec(siec6.getAddress(), Integer.parseInt(siec6.getCountIp())));
         }
 
 
-        leftSiecs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            labelIp.setText(newValue.substring(0, newValue.indexOf(' ')));
-        });
+        leftSiecs.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) ->
+                labelIp.setText(newValue.substring(0, newValue.indexOf(' '))));
 
         mainBox.setStyle("-fx-background-color: white;");
         HBox.setHgrow(mainBox, Priority.ALWAYS);
-        ridthMainBox = new VBox();
+        VBox ridthMainBox = new VBox();
         ridthMainBox.setStyle("-fx-background-color: white;");
         VBox.setVgrow(ridthMainBox, Priority.ALWAYS);
         Label text = new Label("Current network: " + item.getValue().getAddress()+ ", available IP addresses: ");
@@ -112,7 +107,7 @@ class AddSiecDialog {
         for(int i = 0; i < siec6List.size(); i++){
             countIp += Integer.parseInt(siec6List.get(i).getCountIp());
         }
-        labelCountIpTitle = new Label(String.valueOf(countIp));
+        Label labelCountIpTitle = new Label(String.valueOf(countIp));
         labelCountIpTitle.setMaxWidth(Double.MAX_VALUE);
         labelCountIpTitle.setAlignment(Pos.CENTER);
         labelCountIpTitle.setPadding(new Insets(10,10,10,10));
@@ -132,7 +127,7 @@ class AddSiecDialog {
         labelCountIp = new TextField();
         labelCountIp.setPromptText("Count ip..."); labelCountIp.setMinWidth(60);
 
-        ComboBox<String> labelPriority = new ComboBox();
+        ComboBox<String> labelPriority = new ComboBox<>();
         labelPriority.setMinWidth(50);
         labelPriority.getItems().addAll("1", "2", "3", "4", "5");
         labelPriority.getSelectionModel().select(0);
@@ -155,7 +150,7 @@ class AddSiecDialog {
         centerBox.getChildren().addAll(labelIp, labelMask, labelCountIp, labelPriority, labelOpenInfo);
 
         HBox logBox = new HBox(10);
-        imageView = new ImageView();
+        ImageView imageView = new ImageView();
         labelIconLog = new Label("", imageView);
         labelIconLog.setPadding(new Insets(0,5,0,10));
         labelLog = new Label();

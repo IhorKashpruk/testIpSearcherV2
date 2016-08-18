@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.text.Font;
 import sun.reflect.generics.tree.Tree;
 
 import java.util.ArrayList;
@@ -18,6 +19,7 @@ import java.util.Optional;
  */
 
 
+@SuppressWarnings("unchecked")
 public class TreeViewManager {
     private TreeItem<Siec6> rootNode =
             new TreeItem<>(new Siec6("Main", "", "", "", "", "", "", ""));
@@ -41,7 +43,16 @@ public class TreeViewManager {
         MenuItem addBusySiec = new MenuItem("Busy network", new ImageView(new Image("Icons/close_network.png")));
 
         addItem.getItems().addAll(addHomeSiec, addFreeSiec, addBusySiec);
-
+        contextMenu.showingProperty().addListener(observable -> {
+            TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
+            if(siec != null){
+                if(siec.getValue().getStatus() != null &&
+                        !siec.getValue().getStatus().equals("")){
+                    addItem.hide();
+                    addItem.setDisable(true);
+                }else addItem.setDisable(false);
+            }
+        });
 
         addHomeSiec.setOnAction(event -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
@@ -65,9 +76,10 @@ public class TreeViewManager {
                 new AddSiecDialog(rootNode, this, AddSiecDialog.NETWORK_TYPE.BUSY_NETWORK).show();
         });
 
-        MenuItem item2 = new MenuItem("Delete");
-        item2.setOnAction(e -> {
+        MenuItem deleteItem = new MenuItem("Delete");
+        deleteItem.setOnAction(e -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
+            TreeItem<Siec6> parrentSiec = siec.getParent();
             if(siec != null){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Information");
@@ -79,10 +91,11 @@ public class TreeViewManager {
                     siec.getParent().getChildren().remove(siec);
                     treeView.getSelectionModel().clearSelection();
                     upload();
+                    selectItem(rootNode, parrentSiec.getValue());
                 }
             }
         });
-        contextMenu.getItems().addAll(addItem, item2);
+        contextMenu.getItems().addAll(addItem, deleteItem);
 
         rootNode.setExpanded(true);
         this.treeView = treeView;
@@ -263,18 +276,24 @@ public class TreeViewManager {
                     }else
                         labelInfo.setText("");
                 });
-                List<Siec6> list = new ArrayList<>();
-                TreeViewManager.getFreeSiecs(getTreeItem(), list);
-                int n = 0;
-                for(Siec6 siec : list){
-                    n += Integer.parseInt(siec.getCountIp());
+                cellBox.getChildren().addAll(icon, labelAddMasCount);
+                if(getTreeItem().getValue().getStatus() == null ||
+                        getTreeItem().getValue().getStatus().equals("")) {
+                    List<Siec6> list = new ArrayList<>();
+                    TreeViewManager.getFreeSiecs(getTreeItem(), list);
+                    int n = 0;
+                    for (Siec6 siec : list) {
+                        n += Integer.parseInt(siec.getCountIp());
+                    }
+                    Label countFreeIp = new Label(String.valueOf(n));
+                    countFreeIp.setFont(new Font("System", 14));
+                    if (n > 0)
+                        countFreeIp.setStyle("-fx-background-color: greenyellow; -fx-background-radius: 5em;");
+                    else
+                        countFreeIp.setStyle("-fx-background-color: tomato; -fx-background-radius: 5em;");
+                    cellBox.getChildren().add(countFreeIp);
                 }
-                Label countFreeIp = new Label(String.valueOf(n));
-                if(n > 0)
-                    countFreeIp.setStyle("-fx-background-color: chartreuse;");
-                else
-                    countFreeIp.setStyle("-fx-background-color: lightcoral;");
-                 cellBox.getChildren().addAll(icon, labelAddMasCount, countFreeIp, labelOpenInfo, labelInfo);
+                 cellBox.getChildren().addAll(labelOpenInfo, labelInfo);
                 // We set the cellBox as the graphic of the cell.
                 setGraphic(cellBox);
                 setText(null);
