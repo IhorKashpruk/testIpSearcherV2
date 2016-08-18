@@ -84,6 +84,7 @@ class AddSiecDialog {
         leftMainBox.getChildren().addAll(textFreeAddres, leftSiecs);
 
         TreeViewManager.getFreeSiecs(item, siec6List);
+        System.out.println(siec6List.get(0));
 
         for (Siec6 siec6 : siec6List) {
             leftSiecs.getItems().add(siec6.getAddress() + " - " + Siec6.generatedIpSiec(siec6.getAddress(), Integer.parseInt(siec6.getCountIp())));
@@ -130,7 +131,7 @@ class AddSiecDialog {
         ComboBox<String> labelPriority = new ComboBox<>();
         labelPriority.setMinWidth(50);
         labelPriority.getItems().addAll("1", "2", "3", "4", "5");
-        labelPriority.getSelectionModel().select(0);
+        labelPriority.getSelectionModel().select(4);
         HBox secreetBox = new HBox(5);
         TextField labelClient = new TextField();
         labelClient.setPromptText("Client..."); labelClient.setMinWidth(100);
@@ -274,7 +275,8 @@ class AddSiecDialog {
 
         if (matcher.find()) {
             String ipAddress = matcher.group();
-            Siec6 siec6 = new Siec6(ipAddress, labelMask.getText(), labelCountIp.getText(), "", "", "", "", "");
+            String status = networkType == NETWORK_TYPE.BUSY_NETWORK ? "z" : networkType == NETWORK_TYPE.HOME_NETWORK ? "" : "n";
+            Siec6 siec6 = new Siec6(ipAddress, labelMask.getText(), labelCountIp.getText(), status, "", "", "", "");
             boolean isInto = false;
             for (Siec6 siec : siec6List) {
                 if (siec6.thisIsParentNetwortk(siec)) {

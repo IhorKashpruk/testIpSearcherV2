@@ -1,14 +1,15 @@
 package com.Igor.SearchIp.Containers;
 
+import com.Igor.SearchIp.MyMath;
 import com.Igor.SearchIp.Siec6;
-import javafx.geometry.NodeOrientation;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.geometry.Orientation;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
-import sun.reflect.generics.tree.Tree;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,23 +35,21 @@ public class TreeViewManager {
     public TreeViewManager(TreeView treeView) {
 
         final ContextMenu contextMenu = new ContextMenu();
-        contextMenu.setOnShowing(event -> System.out.println("Showing"));
-        contextMenu.setOnShown(event -> System.out.println("Show"));
 
-        Menu addItem = new Menu("Add");
+        Menu newItem = new Menu("New");
         MenuItem addHomeSiec = new MenuItem("Home network", new ImageView(new Image("Icons/network.png")));
         MenuItem addFreeSiec = new MenuItem("Free network", new ImageView(new Image("Icons/open_network.png")));
         MenuItem addBusySiec = new MenuItem("Busy network", new ImageView(new Image("Icons/close_network.png")));
 
-        addItem.getItems().addAll(addHomeSiec, addFreeSiec, addBusySiec);
-        contextMenu.showingProperty().addListener(observable -> {
+        newItem.getItems().addAll(addHomeSiec, addFreeSiec, addBusySiec);
+        contextMenu.setOnShowing(observable -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
             if(siec != null){
                 if(siec.getValue().getStatus() != null &&
                         !siec.getValue().getStatus().equals("")){
-                    addItem.hide();
-                    addItem.setDisable(true);
-                }else addItem.setDisable(false);
+                    newItem.hide();
+                    newItem.setDisable(true);
+                }else newItem.setDisable(false);
             }
         });
 
@@ -76,10 +75,66 @@ public class TreeViewManager {
                 new AddSiecDialog(rootNode, this, AddSiecDialog.NETWORK_TYPE.BUSY_NETWORK).show();
         });
 
-        MenuItem deleteItem = new MenuItem("Delete");
+        MenuItem margeIntoOne = new MenuItem("Marge...");
+        margeIntoOne.setOnAction(event -> {
+            ObservableList<TreeItem<Siec6>> observableList = getTreeView().getSelectionModel().getSelectedItems();
+            if(observableList.size() == 1){
+                new MyLittleAlert(Alert.AlertType.WARNING, "Waring", "You can not marge 1 network", "").showAndWait();
+                return;
+            }
+
+            // Перевірити чи знаходяиться в одній підсети
+            TreeItem<Siec6> parrent = observableList.get(0).getParent();
+            int count = 0;
+            for (TreeItem<Siec6> obj :
+                    observableList) {
+                if(obj.getParent() != parrent){
+                    new MyLittleAlert(Alert.AlertType.WARNING, "Waring","These networks must be in the same home network", "").showAndWait();
+                    return;
+                }
+                if(obj.getValue().getStatus() == null || obj.getValue().getStatus().equals("")){
+                    new MyLittleAlert(Alert.AlertType.WARNING, "Waring", "You can not marge with home network", "").showAndWait();
+                    return;
+                }
+                count += Integer.parseInt(obj.getValue().getCountIp());
+            }
+
+            if(!MyMath.isDivideBy2Entirely(count)){
+                new MyLittleAlert(Alert.AlertType.WARNING, "Waring", "You can not create a network consisting of " + count +" computers.", "").showAndWait();
+                return;
+            }
+
+            List<Siec6> list = new ArrayList<>();
+            for (TreeItem<Siec6> item1 : observableList){
+                list.add(item1.getValue());
+            }
+            Collections.sort(list, (o1, o2) ->
+                    Siec6.isBigger(o1.getAddress(), o2.getAddress()) ? 1 : -1);
+
+            for (Siec6 s :
+                    list) {
+                System.out.println(s);
+            }
+
+            for (int i = 0; i < list.size()-1; i++){
+                Siec6 siec6 = list.get(i);
+                Siec6 siec6_2 = list.get(i+1);
+                String str = Siec6.generatedIpSiec(siec6.getAddress(), Integer.parseInt(siec6.getCountIp()));
+                System.out.println("str = " + str + ", str2 = " + siec6_2.getAddress());
+                if(!str.equals(siec6_2.getAddress())){
+                    new MyLittleAlert(Alert.AlertType.WARNING, "Waring", "There is a space or other network between networks", "").showAndWait();
+                    return;
+                }
+            }
+
+            new MargeSiecDialog(parrent,this, observableList).show();
+
+        });
+
+        MenuItem deleteItem = new MenuItem("Delete...");
         deleteItem.setOnAction(e -> {
             TreeItem<Siec6> siec = (TreeItem<Siec6>) treeView.getSelectionModel().getSelectedItem();
-            TreeItem<Siec6> parrentSiec = siec.getParent();
+//            TreeItem<Siec6> parrentSiec = siec.getParent();
             if(siec != null){
                 Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
                 alert.setTitle("Information");
@@ -90,12 +145,13 @@ public class TreeViewManager {
                     remove(siec);
                     siec.getParent().getChildren().remove(siec);
                     treeView.getSelectionModel().clearSelection();
-                    upload();
-                    selectItem(rootNode, parrentSiec.getValue());
+//                    upload();
+//                    selectItem(rootNode, parrentSiec.getValue());
                 }
             }
         });
-        contextMenu.getItems().addAll(addItem, deleteItem);
+
+        contextMenu.getItems().addAll(newItem, new SeparatorMenuItem(), margeIntoOne, deleteItem);
 
         rootNode.setExpanded(true);
         this.treeView = treeView;

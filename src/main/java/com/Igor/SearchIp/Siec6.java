@@ -218,6 +218,7 @@ public class Siec6 extends SiecModel {
         return null;
     }
     public boolean thisIsParentNetwortk(Siec6 network){
+        System.out.println("this = " + this + ", net = " + network);
         if(this.equals(network))
             return false;
 
@@ -242,7 +243,11 @@ public class Siec6 extends SiecModel {
         int maskN2 = Integer.parseInt(network.mask);
         if(maskN1 != maskN2)
             return maskN1-maskN2;
-
+        if(this.address.equals(network.address)){
+            if(network.status == null || network.status.equals("")) {
+                return 1;
+            }
+        }
         if(isBigger(this.address, network.address)){
             return 1;
         }else

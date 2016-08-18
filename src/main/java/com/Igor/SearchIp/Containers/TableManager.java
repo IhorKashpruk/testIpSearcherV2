@@ -43,7 +43,6 @@ public class TableManager<T extends SiecModel> {
         this.table = table;
         this.table.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
         this.table.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-//        VBox.setVgrow(this.table, Priority.ALWAYS);
         AnchorPane.setTopAnchor(this.table, 0.0);
         AnchorPane.setBottomAnchor(this.table, 0.0);
         AnchorPane.setLeftAnchor(this.table, 0.0);
