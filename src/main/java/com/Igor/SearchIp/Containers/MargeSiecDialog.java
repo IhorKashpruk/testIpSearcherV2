@@ -1,5 +1,6 @@
 package com.Igor.SearchIp.Containers;
 
+import com.Igor.SearchIp.Containers.Callbacks.ComboBoxCallback;
 import com.Igor.SearchIp.MyMath;
 import com.Igor.SearchIp.Siec6;
 import javafx.collections.FXCollections;
@@ -110,27 +111,7 @@ public class MargeSiecDialog {
                 new ImageView(new Image("Icons/close_network.png")),
                 new ImageView(new Image("Icons/network.png"))
         );
-        labelStatus.setCellFactory(new Callback<ListView<ImageView>, ListCell<ImageView>>() {
-            @Override public ListCell<ImageView> call(ListView<ImageView> p) {
-                return new ListCell<ImageView>() {
-                    private final ImageView rectangle;
-                    {
-                        setContentDisplay(ContentDisplay.GRAPHIC_ONLY);
-                        rectangle = new ImageView();
-                    }
-                    @Override protected void updateItem(ImageView item, boolean empty) {
-                        super.updateItem(item, empty);
-
-                        if (item == null || empty) {
-                            setGraphic(null);
-                        } else {
-                            rectangle.setImage(item.getImage());
-                            setGraphic(rectangle);
-                        }
-                    }
-                };
-            }
-        });
+        labelStatus.setCellFactory(new ComboBoxCallback());
         labelStatus.getSelectionModel().select(0);
 
         ComboBox<String> labelPriority = new ComboBox<>();

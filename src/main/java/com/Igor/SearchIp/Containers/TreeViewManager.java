@@ -1,5 +1,6 @@
 package com.Igor.SearchIp.Containers;
 
+import com.Igor.SearchIp.Containers.Callbacks.ComboBoxCallback;
 import com.Igor.SearchIp.MyMath;
 import com.Igor.SearchIp.Siec6;
 import javafx.collections.FXCollections;
@@ -11,10 +12,11 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
+import javafx.util.StringConverter;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 /**
  * Created by Игорь on 11.08.2016.
@@ -25,16 +27,16 @@ import java.util.Optional;
 public class TreeViewManager {
     private TreeItem<Siec6> rootNode =
             new TreeItem<>(new Siec6("Main", "", "", "", "", "", "", ""));
-    TreeView<Siec6> treeView;
-
+    private TreeView<Siec6> treeView;
+    private HBox editPanel;
     private List<Siec6> data;
-
+    private Siec6 currentEditSiec;
     public TreeView<Siec6> getTreeView() {
         return treeView;
     }
 
-    public TreeViewManager(TreeView treeView) {
-
+    public TreeViewManager(TreeView treeView, HBox editPanel) {
+        this.editPanel = editPanel;
         final ContextMenu contextMenu = new ContextMenu();
 
         Menu newItem = new Menu("New");
@@ -168,6 +170,68 @@ public class TreeViewManager {
         treeView.setContextMenu(contextMenu);
 
         treeView.setCellFactory(e -> new CustomCell());
+        ComboBox<ImageView> statusComboBox = (ComboBox<ImageView>) editPanel.getChildren().get(3);
+        statusComboBox.getItems().addAll(
+                new ImageView(new Image("Icons/plus.png")),
+                new ImageView(new Image("Icons/close_network.png")),
+                new ImageView(new Image("Icons/network.png"))
+        );
+        statusComboBox.setCellFactory(new ComboBoxCallback());
+
+        DatePicker datePicker = (DatePicker) editPanel.getChildren().get(7);
+        datePicker.setPromptText("yyyy-MM-dd".toLowerCase());
+        StringConverter converter = new StringConverter<LocalDate>() {
+            DateTimeFormatter dateFormatter =
+                    DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+            @Override
+            public String toString(LocalDate date) {
+                if (date != null) {
+                    return dateFormatter.format(date);
+                } else {
+                    return "";
+                }
+            }
+
+            @Override
+            public LocalDate fromString(String string) {
+                if (string != null && !string.isEmpty()) {
+                    return LocalDate.parse(string, dateFormatter);
+                } else {
+                    return null;
+                }
+            }
+        };
+        datePicker.setConverter(converter);
+
+        ComboBox<String> priorityComboBox = (ComboBox<String>) editPanel.getChildren().get(4);
+        priorityComboBox.getItems().addAll("1", "2", "3", "4", "5");
+
+        Button saveButton = (Button) editPanel.getChildren().get(editPanel.getChildren().size()-1);
+        saveButton.setOnAction(event -> {
+            if(currentEditSiec == null)
+                return;
+            int selectedItem = statusComboBox.getSelectionModel().getSelectedIndex();
+            currentEditSiec.setStatus(selectedItem == 0 ? "n" : selectedItem == 1 ? "z" : "");
+            currentEditSiec.setPriority(priorityComboBox.getSelectionModel().getSelectedItem());
+            currentEditSiec.setClient(((TextField)editPanel.getChildren().get(5)).getText());
+            currentEditSiec.setType(((TextField)editPanel.getChildren().get(6)).getText());
+            currentEditSiec.setDate(((DatePicker)editPanel.getChildren().get(7)).getConverter().toString());
+        });
+        treeView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            currentEditSiec = ((TreeItem<Siec6>)newValue).getValue();
+            ((TextField)editPanel.getChildren().get(0)).setText(currentEditSiec.getAddress());
+            ((TextField)editPanel.getChildren().get(1)).setText(currentEditSiec.getMask());
+            ((TextField)editPanel.getChildren().get(2)).setText(currentEditSiec.getCountIp());
+            ((ComboBox<ImageView>) editPanel.getChildren().get(3)).getSelectionModel().select(
+                    currentEditSiec.getStatus() == null || currentEditSiec.getStatus().isEmpty() ?
+            2 : currentEditSiec.getStatus().equals("z") ? 1 : 0);
+            ((ComboBox<String>) editPanel.getChildren().get(4)).getSelectionModel().select(
+                    currentEditSiec.getPriority() == null || currentEditSiec.getPriority().isEmpty() ? 0 : Integer.parseInt(currentEditSiec.getPriority())-1);
+            ((TextField)editPanel.getChildren().get(5)).setText(currentEditSiec.getClient());
+            ((TextField)editPanel.getChildren().get(6)).setText(currentEditSiec.getType());
+            ((DatePicker)editPanel.getChildren().get(7)).setValue(((DatePicker)editPanel.getChildren().get(7)).getConverter().fromString(currentEditSiec.getDate()));
+        });
     }
 
 
@@ -185,7 +249,7 @@ public class TreeViewManager {
         rootNode.getChildren().clear();
         for (Siec6 siec :
                 data) {
-            TreeItem<Siec6> empLeaf = new TreeItem<Siec6>(siec);
+            TreeItem<Siec6> empLeaf = new TreeItem<>(siec);
             TreeItem<Siec6> node = searchParent(rootNode, siec);
             node.getChildren().add(empLeaf);
         }
@@ -336,8 +400,8 @@ public class TreeViewManager {
                 icon = new Label(null, new ImageView(new Image(url)));
                 labelOpenInfo.setOnMouseClicked(event ->{
                     if(labelInfo.getText().isEmpty()){
-                        labelInfo.setText("{client='"+item.getClient()+
-                                "', type='"+item.getType()+"', priority='" + item.getPriority()+"', date='"+ item.getDate() +"'}");
+                        labelInfo.setText("{'priority='" + item.getPriority() + "', client='"+item.getClient()+
+                                "', type='"+item.getType()+"', date='"+ item.getDate() +"'}");
                     }else
                         labelInfo.setText("");
                 });

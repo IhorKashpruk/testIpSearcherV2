@@ -1,6 +1,7 @@
 package com.Igor.SearchIp;
 
 import com.Igor.SearchIp.Containers.*;
+import com.Igor.SearchIp.Containers.Callbacks.ComboBoxCallback;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.*;
@@ -38,11 +39,10 @@ public class Controller {
     private CSVManager manager;
     private Diagram diagram;
     private SiecBox siecBox;
-
     private  TreeViewManager treeViewManager;
 
     @FXML
-    private AnchorPane secondAnchornPane;
+    private HBox editPanel;
     @FXML
     private AnchorPane scrollPaneAnchorn;
     @FXML
@@ -56,7 +56,7 @@ public class Controller {
     @FXML
     private TextField textField_Find;
     @FXML
-    private ChoiceBox choiceBox;
+    private ChoiceBox<String> choiceBox;
     @FXML
     private HBox HBoxFind;
     @FXML
@@ -172,7 +172,8 @@ public class Controller {
 
     @FXML
     public void initialize(){
-        treeViewManager = new TreeViewManager(treeView);
+        ((Button)editPanel.getChildren().get(8)).setGraphic(new ImageView(new Image("Icons/save.png")));
+        treeViewManager = new TreeViewManager(treeView, editPanel);
         treeViewManager.getTreeView().getSelectionModel().setSelectionMode(MULTIPLE);
         diagram = new Diagram(pieChartCountIp);
         VBoxMain.setVisible(false);
@@ -230,11 +231,14 @@ public class Controller {
         });
 
         textField_Find.setPromptText("Enter text...");
+
+        // Configure edit panel
+        // set listener change text
     }
 
     public void findSiec(String newValue){
         treeViewManager.getTreeView().getSelectionModel().clearSelection();
-        String str = (String) choiceBox.getSelectionModel().getSelectedItem();
+        String str = choiceBox.getSelectionModel().getSelectedItem();
         if(str != null){
             treeViewManager.selectItems(treeViewManager.getRootNode(), str, newValue);
         }
